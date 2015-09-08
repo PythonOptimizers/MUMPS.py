@@ -362,64 +362,76 @@ cdef class MumpsContext_@index@_@type@:
         Py_INCREF(a_row)
         Py_INCREF(a_col)
         Py_INCREF(a_val)
-
-        self.a_row = <MUMPS_INT *> PyMem_Malloc(self.nnz * sizeof(MUMPS_INT))
-        self.a_col = <MUMPS_INT *> PyMem_Malloc(self.nnz * sizeof(MUMPS_INT))
-        self.a_val = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> PyMem_Malloc(self.nnz * sizeof(@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX))
-
+        
+        self.create_arrays()
         self.a_row = <MUMPS_INT *> cnp.PyArray_DATA(a_row)
         self.a_col = <MUMPS_INT *> cnp.PyArray_DATA(a_col)
         self.a_val = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(a_val)
-
-        # MUMPS
-        self.analyzed = False
-        self.factorized = False
-        self.out_of_core = False
-
-        self.params.job = -1
-        # TODO: change this
-        self.params.sym = sym
-        self.params.par = 1
-
-        self.params.comm_fortran = comm_fortran
-
-        @type|numpy_to_mumps_type@mumps_c(&self.params)
-
-        # mumps int arrays
-        # integer control parameters
-        self.icntl = mumps_int_array()
-        self.icntl.get_array(self.params.icntl)
-
-        if not verbose:
-            self.set_silent()
-
-        # int control parameters
-        self.icntl = mumps_int_array()
-        self.icntl.get_array(self.params.icntl)
-
-        self.info = mumps_int_array()
-        self.info.get_array(self.params.info)
-
-        self.infog = mumps_int_array()
-        self.infog.get_array(self.params.infog)
-
-        # real control parameters
-        self.cntl = @type|numpy_to_mumps_type@mumps_real_array()
-        self.cntl.get_array(self.params.cntl)
-
-        self.rinfo = @type|numpy_to_mumps_type@mumps_real_array()
-        self.rinfo.get_array(self.params.rinfo)
-
-        self.rinfog = @type|numpy_to_mumps_type@mumps_real_array()
-        self.rinfog.get_array(self.params.rinfog)
 
         # transform c index arrays to fortran arrays
         c_to_fortran_index_array(self.a_row, self.nnz)
         c_to_fortran_index_array(self.a_col, self.nnz)
 
-        self.params.n = <MUMPS_INT> self.nrow
+        self.initialize_mumps_struct(comm_fortran, sym)
 
+        # `initialize_mumps_struct` **must** be called before assigning
+        # a value to n (size of the matrix)
+        self.params.n = <MUMPS_INT> self.nrow
         self.set_centralized_assembled_matrix()
+
+        self.analyzed = False
+        self.factorized = False
+        self.out_of_core = False
+
+        if not verbose:
+            self.set_silent()
+
+
+    cdef create_arrays(self):
+        """
+
+        """
+        self.a_row = <MUMPS_INT *> PyMem_Malloc(self.nnz * sizeof(MUMPS_INT))
+        self.a_col = <MUMPS_INT *> PyMem_Malloc(self.nnz * sizeof(MUMPS_INT))
+        self.a_val = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> PyMem_Malloc(self.nnz * sizeof(@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX))
+
+
+    cdef initialize_mumps_struct(self, comm_fortran, sym):
+        """
+        Initialize MUMPS struct and make control parameters and information
+        avalaible to user.
+        """
+        self.params.job = -1
+        self.params.sym = sym
+        self.params.par = 1
+
+        self.params.comm_fortran = comm_fortran
+
+        self.mumps_call()
+
+        # integer control parameters
+        self.icntl = mumps_int_array()
+        self.icntl.get_array(self.params.icntl)
+
+        # integer information parameters
+        self.info = mumps_int_array()
+        self.info.get_array(self.params.info)
+
+        # integer information parameters
+        self.infog = mumps_int_array()
+        self.infog.get_array(self.params.infog)
+
+        # real/complex control parameters
+        self.cntl = @type|numpy_to_mumps_type@mumps_real_array()
+        self.cntl.get_array(self.params.cntl)
+
+        # real/complex information parameters
+        self.rinfo = @type|numpy_to_mumps_type@mumps_real_array()
+        self.rinfo.get_array(self.params.rinfo)
+
+        # real/complex information parameters
+        self.rinfog = @type|numpy_to_mumps_type@mumps_real_array()
+        self.rinfog.get_array(self.params.rinfog)
 
 
     cdef set_centralized_assembled_matrix(self):
@@ -699,10 +711,6 @@ cdef class MumpsContext_@index@_@type@:
         self.icntl[4] = 0
 
 
-
-    ####################################################################################################################
-    # Analyse
-    ####################################################################################################################
     def analyze(self, ordering='auto'):
         """
         Perform analysis step of MUMPS.
@@ -732,7 +740,7 @@ cdef class MumpsContext_@index@_@type@:
         t2 = time.clock()
 
         if self.infog[1] < 0:
-            raise MUMPSError(self.infog[1])
+            raise MUMPSError(self.infog)
 
         self.analyzed = True
 

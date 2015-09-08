@@ -134,6 +134,7 @@ cdef class @type|numpy_to_mumps_type@mumps_real_array:
 
     cdef get_array(self, @type|numpy_to_mumps_type|upper@MUMPS_REAL * array, int ub = ?)
 
+cdef c_to_fortran_index_array(MUMPS_INT * a, MUMPS_INT a_size)
 
 cdef class MumpsContext_@index@_@type@:
     cdef:
@@ -166,7 +167,8 @@ cdef class MumpsContext_@index@_@type@:
         object factorize_stats
         object solve_stats
 
-
+    cdef create_arrays(self)
+    cdef initialize_mumps_struct(self, comm_fortran, sym)
     cdef mumps_call(self)
     cdef set_centralized_assembled_matrix(self)
 
