@@ -1,9 +1,19 @@
+# configuration file
+site.cfg
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 
 # C extensions
 *.so
+
+# Generated files
+*.pyx
+*.pxd
+setup.py
+mumps/mumps_context.py
+*.c
 
 # Distribution / packaging
 .Python
