@@ -1,0 +1,10 @@
+os: osx
+language: python
+python:
+    - "2.7"
+branches:
+  only:
+    - master
+before_install:
+    - brew update
+    - brew install mumps

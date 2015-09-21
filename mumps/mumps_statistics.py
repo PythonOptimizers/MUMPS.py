@@ -7,6 +7,9 @@ ordering_name = [ 'amd', 'user-defined', 'amf',
 
 
 class AnalysisStatistics(object):
+    """
+    Statistics computed after an analysis phase has been performed.
+    """
     def __init__(self, inst, time=None):
         self.est_mem_incore = inst.infog[17]
         self.est_mem_ooc = inst.infog[27]
@@ -33,6 +36,9 @@ class AnalysisStatistics(object):
 
 
 class FactorizationStatistics(object):
+    """
+    Statistics computed after a factorization phase has been performed.
+    """
     def __init__(self, inst, time=None, include_ordering=False):
         # information about pivoting
         self.offdiag_pivots = inst.infog[12] if inst.issym() else 0
@@ -69,6 +75,9 @@ class FactorizationStatistics(object):
 
 
 class SolveStatistics(object):
+    """
+    Statistics computed after a solve phase has been performed.
+    """
     def __init__(self, inst, time=None, include_ordering=False):
         # information about pivoting
         self.transpose_solve = False if inst.icntl[9]==1 else True
