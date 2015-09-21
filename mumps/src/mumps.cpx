@@ -51,15 +51,15 @@ Each MUMPS_STRUC_C is specialized and prefixed by a letter:
 - CMUMPS_STRUC_C: simple complex;
 - ZMUMPS_STRUC_C: double complex.
 
-In CySparse (MumpsContext_@index@_@type@), Xmumps_c() is called by a call to self.mumps_call().
+In MUMPSContext_@index@_@type@, (S,D,C,Z)mumps_c() is called by self.mumps_call().
 
 <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> can be used for **ALL** four types.
 
 Solve:
 ------
 
-MUMPS **overwrites** the rhs member and replaces it by the solution(s) it finds. If sparse solve is used, the solution
-is placed in a dummy dense rhs member.
+MUMPS **overwrites** the rhs member and replaces it by the solution(s) it finds.
+If sparse solve is used, the solution is placed in a dummy dense rhs member.
 
 The rhs member can be a matrix or a vector.
 
@@ -71,8 +71,8 @@ MUMPS uses exclusively FORTRAN routines and by consequence **all** array indices
 Default 32 bit integers compilation:
 ------------------------------------
 
-By default, MUMPS is compiled in 32 bit integers **unless** it is compiled with the option -DINTSIZE64. 32 and 64 bit
-versions are **not** compatible.
+By default, MUMPS is compiled in 32 bit integers **unless** it is compiled with the option -DINTSIZE64.
+32 and 64 bit versions are **not** compatible.
 
 Lib creation:
 -------------
@@ -81,7 +81,7 @@ The :file:`libmpiseq.so` file is *missing* by default in lib and must be added b
 libseq. :file:`libmpiseq.so` is essentially a dummy file to deal with sequential code.
 
 The order in which the library (.so) files are given to construct the MUMPS part
-of CySparse **is** important... and not standard.
+of this interface **is** important... and not standard.
 
 """
 
@@ -210,18 +210,14 @@ cdef extern from "@type|numpy_to_mumps_type@mumps_c.h":
 
     cdef void @type|numpy_to_mumps_type@mumps_c(@type|numpy_to_mumps_type|upper@MUMPS_STRUC_C *)
 
-########################################################################################################################
-# MUMPS
-########################################################################################################################
+# MUMPS possible ordering methods
 orderings = { 'amd' : 0, 'amf' : 2, 'scotch' : 3, 'pord' : 4, 'metis' : 5,
               'qamd' : 6, 'auto' : 7 }
 
 ordering_name = [ 'amd', 'user-defined', 'amf',
                   'scotch', 'pord', 'metis', 'qamd']
 
-################################################################
 # MUMPS ERRORS
-################################################################
 # TODO: decouple
 error_messages = {
     -5 : "Not enough memory during analysis phase",
@@ -245,9 +241,7 @@ class MUMPSError(RuntimeError):
 
         RuntimeError.__init__(self, msg)
 
-################################################################
 # MUMPS HELPERS
-################################################################
 cdef class mumps_int_array:
     """
     Internal classes to use x[i] = value and x[i] setters and getters
@@ -268,9 +262,9 @@ cdef class mumps_int_array:
 
     def __getitem__(self, key):
         if key < 1:
-            raise IndexError('Mumps index must be >= 1 (Fortran style)')
+            raise IndexError('MUMPS index must be >= 1 (Fortran style)')
         if key > self.ub:
-            raise IndexError('Mumps index must be <= %d' % self.ub)
+            raise IndexError('MUMPS index must be <= %d' % self.ub)
 
         return self.array[key - 1]
 
@@ -297,9 +291,9 @@ cdef class @type|numpy_to_mumps_type@mumps_real_array:
 
     def __getitem__(self, key):
         if key < 1:
-            raise IndexError('Mumps index must be >= 1 (Fortran style)')
+            raise IndexError('MUMPS index must be >= 1 (Fortran style)')
         if key > self.ub:
-            raise IndexError('Mumps index must be <= %d' % self.ub)
+            raise IndexError('MUMPS index must be <= %d' % self.ub)
 
         return self.array[key - 1]
 
@@ -325,17 +319,15 @@ cdef c_to_fortran_index_array(MUMPS_INT * a, MUMPS_INT a_size):
     for i from 0 <= i < a_size:
         a[i] += 1
 
-################################################################
 # MUMPS CONTEXT
-################################################################
-cdef class MumpsContext_@index@_@type@:
+cdef class MUMPSContext_@index@_@type@:
     """
-    Mumps Context.
+    MUMPS Context.
 
-    This version **only** deals with ``LLSparseMatrix_@index@_@type@`` objects.
+    This version **only** deals Numpy arrays.
 
-    We follow the common use of Mumps. In particular, we use the same names for the methods of this
-    class as their corresponding counter-parts in Mumps.
+    We follow the common use of MUMPS. In particular, we use the same names for the methods of this
+    class as their corresponding counter-parts in MUMPS.
     """
 
     def __cinit__(self, MUMPS_INT n,
@@ -345,12 +337,15 @@ cdef class MumpsContext_@index@_@type@:
                   comm_fortran=-987654, sym=False, verbose=False):
         """
         Args:
-            A: A :class:`LLSparseMatrix_@index@_@type@` object.
+            n: size of matrix A
+            a_row: row indices of non zero elements of A
+            a_col: column indices of non zero elements of A
+            a_val: values of non zeros elements of A
+            sym:   a boolean indicating if A is a symmetric matrix or not
+            verbose: a boolean to turn on or off the verbosity of MUMPS
 
-        Warning:
-            The solver takes a "snapshot" of the matrix ``A``, i.e. the results given by the solver are only
-            valid for the matrix given. If the matrix ``A`` changes aferwards, the results given by the solver won't
-            reflect this change.
+        Warning: if the numpy arrays are modified externally by the user between 2 calls to solve,
+        the changes in arrays won't be passed to MUMPS.
 
         """
         self.nrow = n
@@ -456,10 +451,8 @@ cdef class MumpsContext_@index@_@type@:
         PyMem_Free(self.a_col)
         PyMem_Free(self.a_val)
 
-    ####################################################################################################################
     # Properties
-    ####################################################################################################################
-    ######################################### COMMON Properties ########################################################
+    # COMMON Properties
     property sym:
         def __get__(self): return self.params.sym
         def __set__(self, value): self.params.sym = value
@@ -562,7 +555,6 @@ cdef class MumpsContext_@index@_@type@:
         def __get__(self): return self.params.schur_lld
         def __set__(self, value): self.params.schur_lld = value
 
-
     property mblock:
         def __get__(self): return self.params.mblock
         def __set__(self, value): self.params.mblock = value
@@ -630,16 +622,10 @@ cdef class MumpsContext_@index@_@type@:
         def __get__(self): return self.params.lwk_user
         def __set__(self, value): self.params.lwk_user = value
 
-    ######################################### TYPED Properties #########################################################
+    # TYPED Properties
     property cntl:
         def __get__(self):
             return self.cntl
-
-
-    #property cntl:
-    #    def __get__(self):
-    #        cdef @type|numpy_to_mumps_type|upper@MUMPS_REAL[::1] view = <@type|numpy_to_mumps_type|upper@MUMPS_REAL[::1]> self.params.cntl
-    #        return view
 
     property a:
         def __get__(self): return <long> self.params.a
@@ -689,9 +675,7 @@ cdef class MumpsContext_@index@_@type@:
         def __get__(self): return <long> self.params.wk_user
         def __set__(self, long value): self.params.wk_user = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX*> value
 
-    ####################################################################################################################
     # MUMPS CALL
-    ####################################################################################################################
     cdef mumps_call(self):
         """
         Call to Xmumps_c(XMUMPS_STRUC_C).
@@ -701,9 +685,9 @@ cdef class MumpsContext_@index@_@type@:
 
     def set_silent(self):
         """
-        Silence **all* Mumps output.
+        Silence **all* MUMPS output.
 
-        See Mumps documentation.
+        See MUMPS documentation.
         """
         self.icntl[1] = 0
         self.icntl[2] = 0
@@ -713,16 +697,12 @@ cdef class MumpsContext_@index@_@type@:
 
     def analyze(self, ordering='auto'):
         """
-        Perform analysis step of MUMPS.
+        Performs analysis step of MUMPS.
 
-        [TO BE REWRITTEN: Sylvain]
-
-        In the analyis step, MUMPS figures out a reordering for the matrix and
-        estimates number of operations and memory needed for the factorization
-        time. This step usually needs not be called separately (it is done
-        automatically by `factor`), but it can be useful to test which ordering
-        would give best performance in the actual factorization, as MUMPS
-        estimates are available in `analysis_stats`.
+        In the analyis step, MUMPS is able to figure out a reordering for the 
+        given matrix. It does so if `ordering` is set to 'auto'.
+        If not MUMPS will use the provided ordering.
+        MUMPS statistics for the analysis are available in `analysis_stats`.
 
         Args:
             ordering : { 'auto', 'amd', 'amf', 'scotch', 'pord', 'metis', 'qamd' }
@@ -747,9 +727,6 @@ cdef class MumpsContext_@index@_@type@:
         #self.analysis_stats = AnalysisStatistics(self.params,
         #                                         t2 - t1)
 
-    ####################################################################################################################
-    # Factorize
-    ####################################################################################################################
     def factorize(self, ordering='auto', pivot_tol=0.01):
         """
         Perform the LU factorization of the matrix (or LDL' if the matrix
@@ -800,12 +777,9 @@ cdef class MumpsContext_@index@_@type@:
         #if self.verbose:
         #    self.factorize_stats = FactorizationStatistics(self.params, t2 - t1)
 
-    ####################################################################################################################
-    # Solve
-    ####################################################################################################################
     cdef solve_dense(self, @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX * rhs, MUMPS_INT rhs_length, MUMPS_INT nrhs):
         """
-        Solve a linear system after the LU (or LDLt) factorization has previously been performed by `factorize`
+        Solve a linear system after the LU (or LDL^T) factorization has previously been performed by `factorize`
 
         Args:
             rhs: the right hand side (dense matrix or vector)
@@ -813,10 +787,8 @@ cdef class MumpsContext_@index@_@type@:
             nrhs: Number of columns in the matrix ``rhs``.
 
         Warning:
-            Mumps overwrites ``rhs`` and replaces it by the solution of the linear system.
+            MUMPS overwrites ``rhs`` and replaces it by the solution of the linear system.
         """
-        #self.icntl[9] = 2 if transpose_solve else 1
-
         self.params.nrhs = <MUMPS_INT> nrhs
         self.params.lrhs = <MUMPS_INT> rhs_length
         self.params.rhs = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *>rhs
@@ -839,11 +811,9 @@ cdef class MumpsContext_@index@_@type@:
             x_length: ``self.nrow`` (sequential version).
 
         Warning:
-            Mumps overwrites ``rhs`` and replaces it by the solution of the linear system.
+            MUMPS overwrites ``rhs`` and replaces it by the solution of the linear system.
 
         """
-        #self.icntl[9] = 2 if transpose_solve else 1
-
         self.params.nz_rhs = rhs_nnz
         self.params.nrhs = nrhs # nrhs -1 ?
 
@@ -851,7 +821,7 @@ cdef class MumpsContext_@index@_@type@:
         self.params.irhs_sparse = <MUMPS_INT *> rhs_row_ind
         self.params.irhs_ptr = <MUMPS_INT *> rhs_col_ptr
 
-        # Mumps places the solution(s) of the linear system in its dense rhs...
+        # MUMPS places the solution(s) of the linear system in its dense rhs...
         self.params.lrhs = <MUMPS_INT> x_length
         self.params.rhs = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> x
 
@@ -879,9 +849,6 @@ cdef class MumpsContext_@index@_@type@:
         cdef:
             MUMPS_INT nrhs
 
-        ################################################################################################################
-        # DENSE VERSION
-        ################################################################################################################
         # rhs can be dense or sparse
         if 'rhs' in kwargs:
             rhs = kwargs['rhs']
@@ -908,10 +875,6 @@ cdef class MumpsContext_@index@_@type@:
 
             self.solve_dense(<@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(x), rhs_shape[0], nrhs)
 
-
-        ################################################################################################################
-        # SPARSE VERSION
-        ################################################################################################################
         elif all(arg in kwargs for arg in ['rhs_col_ptr', 'rhs_row_ind', 'rhs_val']) :
 
             rhs_col_ptr = kwargs['rhs_col_ptr']
@@ -936,5 +899,4 @@ cdef class MumpsContext_@index@_@type@:
 
 
         return x
-
 
