@@ -1,7 +1,7 @@
 from cysparse.sparse.ll_mat import *
 import cysparse.types.cysparse_types as types
 
-from mumps.mumps_context import NewMumpsContext
+from mumps.mumps_context import MUMPSContext
 
 import numpy as np
 
@@ -20,7 +20,7 @@ rhs = A*e
 
 arow, acol, aval = A.find()
 
-context = NewMumpsContext(n, arow, acol, aval, sym=True, verbose=True)
+context = MUMPSContext(n, arow, acol, aval, sym=True, verbose=True)
 
 print 'MUMPS version: ', context.version_number
 

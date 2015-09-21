@@ -8,7 +8,7 @@ import numpy as np
 
 {% for index_type in mumps_index_list %}
     {% for element_type in mumps_type_list %}
-from mumps.src.mumps_@index_type@_@element_type@ import MumpsContext_@index_type@_@element_type@
+from mumps.src.mumps_@index_type@_@element_type@ import MUMPSContext_@index_type@_@element_type@
     {% endfor %}
 {% endfor %}
 
