@@ -136,7 +136,7 @@ cdef class @type|numpy_to_mumps_type@mumps_real_array:
 
 cdef c_to_fortran_index_array(MUMPS_INT * a, MUMPS_INT a_size)
 
-cdef class MUMPSContext_@index@_@type@:
+cdef class BaseMUMPSContext_@index@_@type@:
     cdef:
 
         MUMPS_INT nrow
@@ -167,9 +167,15 @@ cdef class MUMPSContext_@index@_@type@:
         object factorize_stats
         object solve_stats
 
-    cdef create_arrays(self)
+    cdef get_data_pointers(self,
+                           MUMPS_INT * a_row,
+                           MUMPS_INT * a_col,
+                           @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX * a_val)
+
     cdef initialize_mumps_struct(self, comm_fortran, sym)
+
     cdef mumps_call(self)
+
     cdef set_centralized_assembled_matrix(self)
 
     cdef solve_dense(self, @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX * rhs,
@@ -178,4 +184,11 @@ cdef class MUMPSContext_@index@_@type@:
                       @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX * rhs_val,
                       MUMPS_INT rhs_nnz, MUMPS_INT nrhs,
                       @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX * x, MUMPS_INT x_length)
+
+#cdef NumpyMUMPSContext_@index@_@type@(MUMPS_INT n,
+#                                      cnp.ndarray[MUMPS_INT] a_row,
+#                                      cnp.ndarray[MUMPS_INT] a_col,
+#                                      cnp.ndarray[@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX] a_val,
+#                                      comm_fortran=?, sym=?, verbose=?)
+
 

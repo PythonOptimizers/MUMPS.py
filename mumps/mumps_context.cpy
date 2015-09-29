@@ -8,7 +8,7 @@ import numpy as np
 
 {% for index_type in mumps_index_list %}
     {% for element_type in mumps_type_list %}
-from mumps.src.mumps_@index_type@_@element_type@ import MUMPSContext_@index_type@_@element_type@
+from mumps.src.mumps_@index_type@_@element_type@ import NumpyMUMPSContext_@index_type@_@element_type@
     {% endfor %}
 {% endfor %}
 
@@ -50,7 +50,7 @@ def MUMPSContext(n, a_row, a_col, a_val, sym=False, verbose=False):
         {% else %}
         elif dtype == np.@element_type|lower@:
         {% endif %}
-           return MUMPSContext_@index_type@_@element_type@(n, a_row, a_col, a_val, sym=sym, verbose=verbose)
+           return NumpyMUMPSContext_@index_type@_@element_type@(n, a_row, a_col, a_val, sym=sym, verbose=verbose)
       {% endfor %}
   {% else %}
     elif itype == np.@index_type|lower@:
@@ -60,7 +60,7 @@ def MUMPSContext(n, a_row, a_col, a_val, sym=False, verbose=False):
         {% else %}
         elif dtype == np.@element_type|lower@:
         {% endif %}
-           return MUMPSContext_@index_type@_@element_type@(n, a_row, a_col, a_val, sym=sym, verbose=verbose)
+           return NumpyMUMPSContext_@index_type@_@element_type@(n, a_row, a_col, a_val, sym=sym, verbose=verbose)
       {% endfor %}
   {% endif %}
 {% endfor %}

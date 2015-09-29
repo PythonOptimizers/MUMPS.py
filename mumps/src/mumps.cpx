@@ -103,7 +103,7 @@ import time
 cdef extern from "mumps_c_types.h":
 
     ctypedef int        MUMPS_INT
-    ctypedef int64_t  MUMPS_INT8 # warning: mumps uses "stdint.h" which might define int64_t as long long...
+    ctypedef int64_t    MUMPS_INT8 # warning: mumps uses "stdint.h" which might define int64_t as long long...
 
     ctypedef float      SMUMPS_COMPLEX
     ctypedef float      SMUMPS_REAL
@@ -320,27 +320,24 @@ cdef c_to_fortran_index_array(MUMPS_INT * a, MUMPS_INT a_size):
         a[i] += 1
 
 # MUMPS CONTEXT
-cdef class MUMPSContext_@index@_@type@:
+cdef class BaseMUMPSContext_@index@_@type@:
     """
-    MUMPS Context.
+    Base MUMPS Context.
 
-    This version **only** deals Numpy arrays.
+    This version **only** deals pointers.
 
     We follow the common use of MUMPS. In particular, we use the same names for the methods of this
     class as their corresponding counter-parts in MUMPS.
     """
 
-    def __cinit__(self, MUMPS_INT n,
-                  cnp.ndarray[MUMPS_INT] a_row,
-                  cnp.ndarray[MUMPS_INT] a_col,
-                  cnp.ndarray[@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX] a_val,
+    def __cinit__(self, MUMPS_INT n, MUMPS_INT nnz,
                   comm_fortran=-987654, sym=False, verbose=False):
         """
         Args:
             n: size of matrix A
-            a_row: row indices of non zero elements of A
-            a_col: column indices of non zero elements of A
-            a_val: values of non zeros elements of A
+            a_row: row indices pointer of non zero elements of A
+            a_col: column indices pointer of non zero elements of A
+            a_val: values pointer of non zeros elements of A
             sym:   a boolean indicating if A is a symmetric matrix or not
             verbose: a boolean to turn on or off the verbosity of MUMPS
 
@@ -350,29 +347,15 @@ cdef class MUMPSContext_@index@_@type@:
         """
         self.nrow = n
         self.ncol = n
-        self.nnz = a_val.size
+        self.nnz = nnz
 
         assert self.ncol == self.nrow
-
-        Py_INCREF(a_row)
-        Py_INCREF(a_col)
-        Py_INCREF(a_val)
-        
-        self.create_arrays()
-        self.a_row = <MUMPS_INT *> cnp.PyArray_DATA(a_row)
-        self.a_col = <MUMPS_INT *> cnp.PyArray_DATA(a_col)
-        self.a_val = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(a_val)
-
-        # transform c index arrays to fortran arrays
-        c_to_fortran_index_array(self.a_row, self.nnz)
-        c_to_fortran_index_array(self.a_col, self.nnz)
 
         self.initialize_mumps_struct(comm_fortran, sym)
 
         # `initialize_mumps_struct` **must** be called before assigning
         # a value to n (size of the matrix)
         self.params.n = <MUMPS_INT> self.nrow
-        self.set_centralized_assembled_matrix()
 
         self.analyzed = False
         self.factorized = False
@@ -380,15 +363,6 @@ cdef class MUMPSContext_@index@_@type@:
 
         if not verbose:
             self.set_silent()
-
-
-    cdef create_arrays(self):
-        """
-
-        """
-        self.a_row = <MUMPS_INT *> PyMem_Malloc(self.nnz * sizeof(MUMPS_INT))
-        self.a_col = <MUMPS_INT *> PyMem_Malloc(self.nnz * sizeof(MUMPS_INT))
-        self.a_val = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> PyMem_Malloc(self.nnz * sizeof(@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX))
 
 
     cdef initialize_mumps_struct(self, comm_fortran, sym):
@@ -427,6 +401,22 @@ cdef class MUMPSContext_@index@_@type@:
         # real/complex information parameters
         self.rinfog = @type|numpy_to_mumps_type@mumps_real_array()
         self.rinfog.get_array(self.params.rinfog)
+
+
+    cdef get_data_pointers(self,
+                           MUMPS_INT * a_row,
+                           MUMPS_INT * a_col,
+                           @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX * a_val):
+
+        self.a_row = <MUMPS_INT *> a_row
+        self.a_col = <MUMPS_INT *> a_col
+        self.a_val = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> a_val
+
+        # transform c index arrays to fortran arrays
+        c_to_fortran_index_array(self.a_row, self.nnz)
+        c_to_fortran_index_array(self.a_col, self.nnz)
+
+        self.set_centralized_assembled_matrix()
 
 
     cdef set_centralized_assembled_matrix(self):
@@ -899,4 +889,50 @@ cdef class MUMPSContext_@index@_@type@:
 
 
         return x
+
+
+cpdef NumpyMUMPSContext_@index@_@type@(MUMPS_INT n,
+                                       cnp.ndarray[MUMPS_INT] a_row,
+                                       cnp.ndarray[MUMPS_INT] a_col,
+                                       cnp.ndarray[@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX] a_val,
+                                       comm_fortran=-987654, sym=False, verbose=False):
+
+    """
+    MUMPS Context.
+
+    We follow the common use of MUMPS. In particular, we use the same names for the methods of this
+    class as their corresponding counter-parts in MUMPS.
+    Args:
+        n: size of matrix A
+        a_row: row indices of non zero elements of A
+        a_col: column indices of non zero elements of A
+        a_val: values of non zeros elements of A
+        sym:   a boolean indicating if A is a symmetric matrix or not
+        verbose: a boolean to turn on or off the verbosity of MUMPS
+
+    Warning: if the numpy arrays are modified externally by the user between 2 calls to solve,
+    the changes in arrays won't be passed to MUMPS.
+    """
+    nrow = n
+    ncol = n
+    nnz = a_val.size
+    
+    assert ncol == nrow
+
+    Py_INCREF(a_row)
+    Py_INCREF(a_col)
+    Py_INCREF(a_val)
+
+    arow = <MUMPS_INT *> PyMem_Malloc(nnz * sizeof(MUMPS_INT))
+    acol = <MUMPS_INT *> PyMem_Malloc(nnz * sizeof(MUMPS_INT))
+    aval = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> PyMem_Malloc(nnz * sizeof(@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX))
+       
+    arow = <MUMPS_INT *> cnp.PyArray_DATA(a_row)
+    acol = <MUMPS_INT *> cnp.PyArray_DATA(a_col)
+    aval = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(a_val)
+
+    context = BaseMUMPSContext_@index@_@type@(n, nnz, comm_fortran, sym, verbose)
+    context.get_data_pointers(arow, acol, aval)
+
+    return context
 
