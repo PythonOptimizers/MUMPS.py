@@ -1,0 +1,68 @@
+from cysparse.sparse.ll_mat_matrices.ll_mat_@index@_t_@type@_t cimport LLSparseMatrix_@index@_t_@type@_t
+from cysparse.sparse.csc_mat_matrices.csc_mat_@index@_t_@type@_t cimport CSCSparseMatrix_@index@_t_@type@_t
+
+from cysparse.types.cysparse_numpy_types import are_mixed_types_compatible, cysparse_to_numpy_type
+from cysparse.types.cysparse_types import *
+
+from mumps.src.mumps_@index@_@type@ cimport BaseMUMPSContext_@index@_@type@, c_to_fortran_index_array, MUMPS_INT
+{% if type in complex_list %} 
+from mumps.src.mumps_@index@_@type@ cimport @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX
+{% endif %}
+
+from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
+from cpython cimport Py_INCREF, Py_DECREF
+
+from libc.stdint cimport int64_t
+from libc.string cimport strncpy
+
+import numpy as np
+cimport numpy as cnp
+
+cnp.import_array()
+
+import time
+
+cpdef CySparseMUMPSContext_@index@_@type@(LLSparseMatrix_@index@_t_@type@_t A, comm_fortran=-987654, verbose=False):
+    """
+    MUMPS Context.
+
+    This version **only** deals with ``LLSparseMatrix_@index@_t_@type@_t`` objects.
+
+    We follow the common use of MUMPS. In particular, we use the same names for the methods of this
+    class as their corresponding counter-parts in MUMPS.
+
+    Args:
+        A: A :class:`LLSparseMatrix_@index@_t_@type@_t` object.
+
+    Warning:
+        The solver takes a "snapshot" of the matrix ``A``, i.e. the results given by the solver are only
+        valid for the matrix given. If the matrix ``A`` changes aferwards, the results given by the solver won't
+        reflect this change.
+
+    """
+    assert A.ncol == A.nrow
+
+    Py_INCREF(A)  # increase ref to object to avoid the user deleting it explicitly or implicitly
+
+    n = A.nrow
+    nnz = A.nnz
+    sym = A.is_symmetric
+
+    # create i, j, val
+    arow = <MUMPS_INT *> PyMem_Malloc(nnz * sizeof(MUMPS_INT))
+    acol = <MUMPS_INT *> PyMem_Malloc(nnz * sizeof(MUMPS_INT))
+ 
+{% if type in complex_list %} 
+    a_val = <@type@_t *> PyMem_Malloc(nnz * sizeof(@type@_t))
+    A.take_triplet_pointers(arow, acol, a_val)
+    aval = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> a_val
+{% else %}
+    aval = <@type@_t *> PyMem_Malloc(nnz * sizeof(@type@_t))
+    A.take_triplet_pointers(arow, acol, aval)
+{% endif %}
+
+    context = BaseMUMPSContext_@index@_@type@(n, nnz, comm_fortran, sym, verbose)
+    context.get_data_pointers(arow, acol, aval)
+
+    return context
+

@@ -110,9 +110,11 @@ if __name__ == "__main__":
 
     INDEX_TYPES = [MUMPS_INT]
     ELEMENT_TYPES = ['FLOAT32', 'FLOAT64', 'COMPLEX64', 'COMPLEX128']
+    COMPLEX_ELEMENT_TYPES = ['COMPLEX64', 'COMPLEX128']
 
     GENERAL_CONTEXT = {'mumps_index_list': INDEX_TYPES,
-                       'mumps_type_list': ELEMENT_TYPES}
+                       'mumps_type_list': ELEMENT_TYPES,
+                       'complex_list' : COMPLEX_ELEMENT_TYPES}
 
     GENERAL_ENVIRONMENT = Environment(
         autoescape=False,

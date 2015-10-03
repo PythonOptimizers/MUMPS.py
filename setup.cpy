@@ -45,6 +45,16 @@ if mumps_include_dirs == '':
 mumps_library_dirs = mumps_config.get('MUMPS', 'library_dirs').split(os.pathsep)
 if mumps_library_dirs == '':
     mumps_library_dirs = default_library_dir
+           
+# OPTIONAL
+build_cysparse_ext = False           
+if mumps_config.has_section('CYSPARSE'):
+    build_cysparse_ext = True
+    cysparse_rootdir = mumps_config.get('CYSPARSE', 'cysparse_rootdir').split(os.pathsep)
+    if cysparse_rootdir == '':
+        raise ValueError("You must specify where CySparse source code is" +
+                         "located. Use `cysparse_rootdir` to specify its path.")
+
 
 ########################################################################################################################
 # EXTENSIONS
@@ -80,6 +90,20 @@ mumps_ext.append(Extension(name="mumps.src.mumps_@index_type@_@element_type@",
 
   {% endfor %}
 {% endfor %}
+
+if build_cysparse_ext:
+{% for index_type in mumps_index_list %}
+  {% for element_type in mumps_type_list %}
+    cysparse_ext_params_@index_type@_@element_type@ = copy.deepcopy(ext_params)
+    cysparse_ext_params_@index_type@_@element_type@['include_dirs'].extend(cysparse_rootdir)
+    mumps_ext.append(Extension(name="mumps.src.cysparse_mumps_@index_type@_@element_type@",
+                 sources=['mumps/src/cysparse_mumps_@index_type@_@element_type@.pxd',
+                 'mumps/src/cysparse_mumps_@index_type@_@element_type@.pyx'],
+                 **cysparse_ext_params_@index_type@_@element_type@))
+
+  {% endfor %}
+{% endfor %}
+
 
 packages_list = ['mumps', 'mumps.src', 'tests']
 
