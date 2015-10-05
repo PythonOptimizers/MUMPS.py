@@ -84,7 +84,7 @@ MUMPS_DEFINITION_FILES = glob.glob(os.path.join(MUMPS_TEMPLATE_DIR, '*.cpx'))
 
 # TESTS
 TESTS_TEMPLATE_DIR = os.path.join(PATH, 'tests')
-
+TESTS_FILES = glob.glob(os.path.join(TESTS_TEMPLATE_DIR, '*.cpy'))
 
 if __name__ == "__main__":
 
@@ -187,6 +187,7 @@ if __name__ == "__main__":
             generate_template_files(logger, [MUMPS_FACTORY_METHOD_FILE], GENERAL_ENVIRONMENT, GENERAL_CONTEXT, '.py')
             generate_following_type_and_index(logger, MUMPS_DECLARATION_FILES, GENERAL_ENVIRONMENT, GENERAL_CONTEXT, ELEMENT_TYPES, INDEX_TYPES, '.pxd')
             generate_following_type_and_index(logger, MUMPS_DEFINITION_FILES, GENERAL_ENVIRONMENT, GENERAL_CONTEXT, ELEMENT_TYPES, INDEX_TYPES, '.pyx')
+            generate_template_files(logger, TESTS_FILES, GENERAL_ENVIRONMENT, GENERAL_CONTEXT, '.py')
 
     if not action:
         logger.warning("Nothing has been done...")

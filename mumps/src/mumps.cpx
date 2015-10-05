@@ -443,6 +443,10 @@ cdef class BaseMUMPSContext_@index@_@type@:
 
     # Properties
     # COMMON Properties
+    property analyzed:
+        def __get__(self): return self.analyzed
+    property factorized:
+        def __get__(self): return self.factorized
     property sym:
         def __get__(self): return self.params.sym
         def __set__(self, value): self.params.sym = value
@@ -714,8 +718,8 @@ cdef class BaseMUMPSContext_@index@_@type@:
 
         self.analyzed = True
 
-        #self.analysis_stats = AnalysisStatistics(self.params,
-        #                                         t2 - t1)
+        # self.analysis_stats = AnalysisStatistics(self.params,
+        #                                          t2 - t1)
 
     def factorize(self, ordering='auto', pivot_tol=0.01):
         """
@@ -764,8 +768,7 @@ cdef class BaseMUMPSContext_@index@_@type@:
                 done = True
 
         self.factorized = True
-        #if self.verbose:
-        #    self.factorize_stats = FactorizationStatistics(self.params, t2 - t1)
+        # self.factorize_stats = FactorizationStatistics(self.params, t2 - t1)
 
     cdef solve_dense(self, @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX * rhs, MUMPS_INT rhs_length, MUMPS_INT nrhs):
         """

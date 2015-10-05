@@ -1,8 +1,5 @@
 """
 Factory method to access MUMPS.
-           
-Note: the python code (this module) is automatically generated because the code depends
-on the compile/architecture configuration.
 """
 import numpy as np
 
@@ -12,7 +9,37 @@ from mumps.src.mumps_@index_type@_@element_type@ import NumpyMUMPSContext_@index
     {% endfor %}
 {% endfor %}
 
-def MUMPSContext(n, a_row, a_col, a_val, sym=False, verbose=False):
+cysparse_installed = False
+try:
+{% for index_type in mumps_index_list %}
+    {% for element_type in mumps_type_list %}
+    from mumps.src.cysparse_mumps_@index_type@_@element_type@ import CySparseMUMPSContext_@index_type@_@element_type@
+    {% endfor %}
+    from cysparse.sparse.ll_mat import PyLLSparseMatrix_Check
+    from cysparse.types.cysparse_types import *
+    cysparse_installed = True
+{% endfor %}
+except:
+    pass
+
+allowed_types = '\titype:
+{%- for index_name in mumps_index_list -%}
+    @index_name@
+    {%- if index_name != mumps_index_list|last -%}
+    ,
+    {%- endif -%}
+{%- endfor -%}
+\n\tdtype:
+{%- for element_name in mumps_type_list -%}
+    @element_name@
+    {%- if element_name != mumps_type_list|last -%}
+    ,
+    {%- endif -%}
+{%- endfor -%}
+\n'
+type_error_msg = 'Matrix has an index and/or element type that is incompatible with MUMPS\nAllowed types:\n%s' % allowed_types
+
+def MUMPSContext(arg1, verbose=False):
     """
     Create and return the right MUMPS context based on the element type
     supplied as input.
@@ -38,48 +65,76 @@ def MUMPSContext(n, a_row, a_col, a_val, sym=False, verbose=False):
         sym:   a boolean indicating if A is a symmetric matrix or not
         verbose: a boolean to turn on or off the verbosity of MUMPS
     """
-    itype = a_row.dtype
-    dtype = a_val.dtype
+    if isinstance(arg1, tuple):
+        if len(arg1) != 5:
+            raise ValueError("If a tuple is supplied, it must have 5"+
+                             "items: n, a_row, a_col, a_val, sym")
+        n = arg1[0]
+        a_row = arg1[1]
+        a_col = arg1[2]
+        a_val = arg1[3]
+        sym = arg1[4]
+
+        itype = a_row.dtype
+        dtype = a_val.dtype
 
 {% for index_type in mumps_index_list %}
   {% if index_type == mumps_index_list |first %}
-    if itype == np.@index_type|lower@:
+        if itype == np.@index_type|lower@:
       {% for element_type in mumps_type_list %}
         {% if element_type == mumps_type_list |first %}
-        if dtype == np.@element_type|lower@:
+            if dtype == np.@element_type|lower@:
         {% else %}
-        elif dtype == np.@element_type|lower@:
+            elif dtype == np.@element_type|lower@:
         {% endif %}
-           return NumpyMUMPSContext_@index_type@_@element_type@(n, a_row, a_col, a_val, sym=sym, verbose=verbose)
+                return NumpyMUMPSContext_@index_type@_@element_type@(n, a_row, a_col, a_val, sym=sym, verbose=verbose)
       {% endfor %}
   {% else %}
-    elif itype == np.@index_type|lower@:
+        elif itype == np.@index_type|lower@:
       {% for element_type in mumps_type_list %}
         {% if element_type == mumps_type_list |first %}
-        if dtype == np.@element_type|lower@:
+            if dtype == np.@element_type|lower@:
         {% else %}
-        elif dtype == np.@element_type|lower@:
+            elif dtype == np.@element_type|lower@:
         {% endif %}
-           return NumpyMUMPSContext_@index_type@_@element_type@(n, a_row, a_col, a_val, sym=sym, verbose=verbose)
+                return NumpyMUMPSContext_@index_type@_@element_type@(n, a_row, a_col, a_val, sym=sym, verbose=verbose)
       {% endfor %}
   {% endif %}
 {% endfor %}
+        else:
+            raise TypeError(type_error_msg)
 
-    allowed_types = '\titype:
-    {%- for index_name in mumps_index_list -%}
-       @index_name@
-       {%- if index_name != mumps_index_list|last -%}
-       ,
-       {%- endif -%}
-     {%- endfor -%}
-     \n\tdtype:
-     {%- for element_name in mumps_type_list -%}
-       @element_name@
-       {%- if element_name != mumps_type_list|last -%}
-       ,
-       {%- endif -%}
-     {%- endfor -%}
-     \n'
+    elif cysparse_installed:
+        if not PyLLSparseMatrix_Check(arg1):
+            raise TypeError('arg1 should be a LLSparseMatrix')
 
-    type_error_msg = 'Matrix has an index and/or element type that is incompatible with MUMPS\nAllowed types:\n%s' % allowed_types
-    raise TypeError(type_error_msg)
+        A = arg1
+        itype = A.itype
+        dtype = A.dtype
+
+{% for index_type in mumps_index_list %}
+    {% if index_type == mumps_index_list |first %}
+        if itype == @index_type@_T:
+    {% for element_type in mumps_type_list %}
+        {% if element_type == mumps_type_list |first %}
+            if dtype == @element_type@_T:
+        {% else %}
+            elif dtype == @element_type@_T:
+        {% endif %}
+                return CySparseMUMPSContext_@index_type@_@element_type@(A, verbose=verbose)
+    {% endfor %}
+    {% else %}
+        elif itype == @index_type@_T:
+    {% for element_type in mumps_type_list %}
+        {% if element_type == mumps_type_list |first %}
+            if dtype == @element_type@_T:
+        {% else %}
+            elif dtype == @element_type@_T:
+        {% endif %}
+                return CySparseMUMPSContext_@index_type@_@element_type@(A, verbose=verbose)
+    {% endfor %}
+    {% endif %}
+{% endfor %}
+        else:
+            raise TypeError(type_error_msg)
+
