@@ -26,7 +26,11 @@ context.analyze()
 context.factorize()
 
 x = context.solve(rhs=rhs)
+x = context.refine(rhs, 10)
+
 print x
+sys.exit(0)
+
 
 print "= " * 80
 

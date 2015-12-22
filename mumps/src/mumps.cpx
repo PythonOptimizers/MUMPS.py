@@ -53,7 +53,7 @@ Each MUMPS_STRUC_C is specialized and prefixed by a letter:
 
 In MUMPSContext_@index@_@type@, (S,D,C,Z)mumps_c() is called by self.mumps_call().
 
-<@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> can be used for **ALL** four types.
+<@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> can be used for **ALL** four types.
 
 Solve:
 ------
@@ -123,14 +123,14 @@ cdef extern from "mumps_c_types.h":
     ctypedef mumps_double_complex  ZMUMPS_COMPLEX
     ctypedef double                ZMUMPS_REAL
 
-cdef extern from "@type|numpy_to_mumps_type@mumps_c.h":
-    ctypedef struct @type|numpy_to_mumps_type|upper@MUMPS_STRUC_C:
+cdef extern from "@type|generic_to_mumps_type@mumps_c.h":
+    ctypedef struct @type|generic_to_mumps_type|upper@MUMPS_STRUC_C:
         MUMPS_INT      sym, par, job
         MUMPS_INT      comm_fortran    # Fortran communicator
         MUMPS_INT      icntl[40]
         MUMPS_INT      keep[500]
-        @type|numpy_to_mumps_type|upper@MUMPS_REAL    cntl[15]
-        @type|numpy_to_mumps_type|upper@MUMPS_REAL    dkeep[130];
+        @type|generic_to_mumps_type|upper@MUMPS_REAL    cntl[15]
+        @type|generic_to_mumps_type|upper@MUMPS_REAL    dkeep[130];
         MUMPS_INT8     keep8[150];
         MUMPS_INT      n
 
@@ -142,19 +142,19 @@ cdef extern from "@type|numpy_to_mumps_type@mumps_c.h":
         MUMPS_INT      nz
         MUMPS_INT      *irn
         MUMPS_INT      *jcn
-        @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *a
+        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *a
 
         # Distributed entry
         MUMPS_INT      nz_loc
         MUMPS_INT      *irn_loc
         MUMPS_INT      *jcn_loc
-        @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *a_loc
+        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *a_loc
 
         # Element entry
         MUMPS_INT      nelt
         MUMPS_INT      *eltptr
         MUMPS_INT      *eltvar
-        @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *a_elt
+        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *a_elt
 
         # Ordering, if given by user
         MUMPS_INT      *perm_in
@@ -164,17 +164,17 @@ cdef extern from "@type|numpy_to_mumps_type@mumps_c.h":
         MUMPS_INT      *uns_perm    # column permutation
 
         # Scaling (input only in this version)
-        @type|numpy_to_mumps_type|upper@MUMPS_REAL    *colsca
-        @type|numpy_to_mumps_type|upper@MUMPS_REAL    *rowsca
+        @type|generic_to_mumps_type|upper@MUMPS_REAL    *colsca
+        @type|generic_to_mumps_type|upper@MUMPS_REAL    *rowsca
         MUMPS_INT colsca_from_mumps;
         MUMPS_INT rowsca_from_mumps;
 
 
         # RHS, solution, ouptput data and statistics
-        @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *rhs
-        @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *redrhs
-        @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *rhs_sparse
-        @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *sol_loc
+        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *rhs
+        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *redrhs
+        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *rhs_sparse
+        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *sol_loc
         MUMPS_INT      *irhs_sparse
         MUMPS_INT      *irhs_ptr
         MUMPS_INT      *isol_loc
@@ -183,8 +183,8 @@ cdef extern from "@type|numpy_to_mumps_type@mumps_c.h":
         MUMPS_INT      mblock, nblock, nprow, npcol
         MUMPS_INT      info[40]
         MUMPS_INT      infog[40]
-        @type|numpy_to_mumps_type|upper@MUMPS_REAL    rinfo[40]
-        @type|numpy_to_mumps_type|upper@MUMPS_REAL    rinfog[40]
+        @type|generic_to_mumps_type|upper@MUMPS_REAL    rinfo[40]
+        @type|generic_to_mumps_type|upper@MUMPS_REAL    rinfog[40]
 
         # Null space
         MUMPS_INT      deficiency
@@ -194,11 +194,11 @@ cdef extern from "@type|numpy_to_mumps_type@mumps_c.h":
         # Schur
         MUMPS_INT      size_schur
         MUMPS_INT      *listvar_schur
-        @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *schur
+        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *schur
 
         # Internal parameters
         MUMPS_INT      instance_number
-        @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *wk_user
+        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *wk_user
 
         char *version_number
         # For out-of-core
@@ -208,7 +208,7 @@ cdef extern from "@type|numpy_to_mumps_type@mumps_c.h":
         char *write_problem
         MUMPS_INT      lwk_user
 
-    cdef void @type|numpy_to_mumps_type@mumps_c(@type|numpy_to_mumps_type|upper@MUMPS_STRUC_C *)
+    cdef void @type|generic_to_mumps_type@mumps_c(@type|generic_to_mumps_type|upper@MUMPS_STRUC_C *)
 
 # MUMPS possible ordering methods
 orderings = { 'amd' : 0, 'amf' : 2, 'scotch' : 3, 'pord' : 4, 'metis' : 5,
@@ -271,7 +271,7 @@ cdef class mumps_int_array:
     def __setitem__(self, key, value):
         self.array[key - 1] = value
 
-cdef class @type|numpy_to_mumps_type@mumps_real_array:
+cdef class @type|generic_to_mumps_type@mumps_real_array:
     """
     Internal classes to use x[i] = value and x[i] setters and getters
 
@@ -281,7 +281,7 @@ cdef class @type|numpy_to_mumps_type@mumps_real_array:
     def __cinit__(self):
         pass
 
-    cdef get_array(self, @type|numpy_to_mumps_type|upper@MUMPS_REAL * array, int ub = 40):
+    cdef get_array(self, @type|generic_to_mumps_type|upper@MUMPS_REAL * array, int ub = 40):
         """
         Args:
             ub: upper bound.
@@ -391,26 +391,26 @@ cdef class BaseMUMPSContext_@index@_@type@:
         self.infog.get_array(self.params.infog)
 
         # real/complex control parameters
-        self.cntl = @type|numpy_to_mumps_type@mumps_real_array()
+        self.cntl = @type|generic_to_mumps_type@mumps_real_array()
         self.cntl.get_array(self.params.cntl)
 
         # real/complex information parameters
-        self.rinfo = @type|numpy_to_mumps_type@mumps_real_array()
+        self.rinfo = @type|generic_to_mumps_type@mumps_real_array()
         self.rinfo.get_array(self.params.rinfo)
 
         # real/complex information parameters
-        self.rinfog = @type|numpy_to_mumps_type@mumps_real_array()
+        self.rinfog = @type|generic_to_mumps_type@mumps_real_array()
         self.rinfog.get_array(self.params.rinfog)
 
 
     cdef get_data_pointers(self,
                            MUMPS_INT * a_row,
                            MUMPS_INT * a_col,
-                           @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX * a_val):
+                           @type|generic_to_mumps_type|upper@MUMPS_COMPLEX * a_val):
 
         self.a_row = <MUMPS_INT *> a_row
         self.a_col = <MUMPS_INT *> a_col
-        self.a_val = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> a_val
+        self.a_val = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> a_val
 
         # transform c index arrays to fortran arrays
         c_to_fortran_index_array(self.a_row, self.nnz)
@@ -429,17 +429,15 @@ cdef class BaseMUMPSContext_@index@_@type@:
 
         self.params.irn = <MUMPS_INT *> self.a_row
         self.params.jcn = <MUMPS_INT *> self.a_col
-        self.params.a = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> self.a_val
+        self.params.a = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> self.a_val
 
 
     def __dealloc__(self):
         # autodestruct mumps internal
         self.params.job = -2
         self.mumps_call()
-
-        PyMem_Free(self.a_row)
-        PyMem_Free(self.a_col)
-        PyMem_Free(self.a_val)
+        self.params.job = -1
+        self.mumps_call()
 
     # Properties
     # COMMON Properties
@@ -623,35 +621,35 @@ cdef class BaseMUMPSContext_@index@_@type@:
 
     property a:
         def __get__(self): return <long> self.params.a
-        def __set__(self, long value): self.params.a = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.a = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
 
     property a_loc:
         def __get__(self): return <long> self.params.a_loc
-        def __set__(self, long value): self.params.a_loc = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.a_loc = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
 
     property a_elt:
         def __get__(self): return <long> self.params.a_elt
-        def __set__(self, long value): self.params.a_elt = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.a_elt = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
 
     property colsca:
         def __get__(self): return <long> self.params.colsca
-        def __set__(self, long value): self.params.colsca = <@type|numpy_to_mumps_type|upper@MUMPS_REAL*> value
+        def __set__(self, long value): self.params.colsca = <@type|generic_to_mumps_type|upper@MUMPS_REAL*> value
     property rowsca:
         def __get__(self): return <long> self.params.rowsca
-        def __set__(self, long value): self.params.rowsca = <@type|numpy_to_mumps_type|upper@MUMPS_REAL*> value
+        def __set__(self, long value): self.params.rowsca = <@type|generic_to_mumps_type|upper@MUMPS_REAL*> value
 
     property rhs:
         def __get__(self): return <long> self.params.rhs
-        def __set__(self, long value): self.params.rhs = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.rhs = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
     property redrhs:
         def __get__(self): return <long> self.params.redrhs
-        def __set__(self, long value): self.params.redrhs = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.redrhs = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
     property rhs_sparse:
         def __get__(self): return <long> self.params.rhs_sparse
-        def __set__(self, long value): self.params.rhs_sparse = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.rhs_sparse = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
     property sol_loc:
         def __get__(self): return <long> self.params.sol_loc
-        def __set__(self, long value): self.params.sol_loc = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.sol_loc = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
 
     property rinfo:
         def __get__(self):
@@ -663,18 +661,18 @@ cdef class BaseMUMPSContext_@index@_@type@:
 
     property schur:
         def __get__(self): return <long> self.params.schur
-        def __set__(self, long value): self.params.schur = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.schur = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
 
     property wk_user:
         def __get__(self): return <long> self.params.wk_user
-        def __set__(self, long value): self.params.wk_user = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.wk_user = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
 
     # MUMPS CALL
     cdef mumps_call(self):
         """
         Call to Xmumps_c(XMUMPS_STRUC_C).
         """
-        @type|numpy_to_mumps_type@mumps_c(&self.params)
+        @type|generic_to_mumps_type@mumps_c(&self.params)
 
 
     def set_silent(self):
@@ -770,7 +768,7 @@ cdef class BaseMUMPSContext_@index@_@type@:
         self.factorized = True
         # self.factorize_stats = FactorizationStatistics(self.params, t2 - t1)
 
-    cdef solve_dense(self, @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX * rhs, MUMPS_INT rhs_length, MUMPS_INT nrhs):
+    cdef solve_dense(self, @type|generic_to_mumps_type|upper@MUMPS_COMPLEX * rhs, MUMPS_INT rhs_length, MUMPS_INT nrhs):
         """
         Solve a linear system after the LU (or LDL^T) factorization has previously been performed by `factorize`
 
@@ -784,13 +782,13 @@ cdef class BaseMUMPSContext_@index@_@type@:
         """
         self.params.nrhs = <MUMPS_INT> nrhs
         self.params.lrhs = <MUMPS_INT> rhs_length
-        self.params.rhs = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *>rhs
+        self.params.rhs = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *>rhs
         self.params.job = 3  # solve
         self.mumps_call()
 
     cdef solve_sparse(self, MUMPS_INT * rhs_col_ptr, MUMPS_INT * rhs_row_ind,
-                      @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX * rhs_val, MUMPS_INT rhs_nnz, MUMPS_INT nrhs, 
-                      @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX * x, MUMPS_INT x_length):
+                      @type|generic_to_mumps_type|upper@MUMPS_COMPLEX * rhs_val, MUMPS_INT rhs_nnz, MUMPS_INT nrhs, 
+                      @type|generic_to_mumps_type|upper@MUMPS_COMPLEX * x, MUMPS_INT x_length):
         """
         Solve a linear system after the LU (or LDL^t) factorization has previously been performed by `factorize`
 
@@ -810,13 +808,13 @@ cdef class BaseMUMPSContext_@index@_@type@:
         self.params.nz_rhs = rhs_nnz
         self.params.nrhs = nrhs # nrhs -1 ?
 
-        self.params.rhs_sparse = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> rhs_val
+        self.params.rhs_sparse = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> rhs_val
         self.params.irhs_sparse = <MUMPS_INT *> rhs_row_ind
         self.params.irhs_ptr = <MUMPS_INT *> rhs_col_ptr
 
         # MUMPS places the solution(s) of the linear system in its dense rhs...
         self.params.lrhs = <MUMPS_INT> x_length
-        self.params.rhs = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> x
+        self.params.rhs = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> x
 
         self.params.job = 3        # solve
         self.icntl[20] = 1  # tell solver rhs is sparse
@@ -866,7 +864,7 @@ cdef class BaseMUMPSContext_@index@_@type@:
             else:
                 nrhs = <MUMPS_INT> rhs_shape[1]
 
-            self.solve_dense(<@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(x), rhs_shape[0], nrhs)
+            self.solve_dense(<@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(x), rhs_shape[0], nrhs)
 
         elif all(arg in kwargs for arg in ['rhs_col_ptr', 'rhs_row_ind', 'rhs_val']) :
 
@@ -885,19 +883,76 @@ cdef class BaseMUMPSContext_@index@_@type@:
             x = np.zeros([self.nrow, nrhs], dtype=np.@type|lower@)
 
             self.solve_sparse(<MUMPS_INT *>cnp.PyArray_DATA(rhs_col_ptr), <MUMPS_INT *>cnp.PyArray_DATA(rhs_row_ind),
-                              <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(rhs_val),
-                              rhs_nnz, nrhs, <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(x), x_length)
+                              <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(rhs_val),
+                              rhs_nnz, nrhs, <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(x), x_length)
         else:
             raise TypeError('rhs not given in the right format (dense: rhs=..., sparse: rhs_col_ptr=..., rhs_row_ind=..., rhs_val=...)')
 
+        return x
+
+    def refine(self, rhs, nitref = 3, tol=None):
+        """
+        refine(rhs, nitref) performs iterative refinement if necessary
+        until the scaled residual norm ||b-Ax||/(1+||b||) falls below the
+        threshold 'tol' or until nitref steps are taken.
+        Parameters:
+        nitref :  < 0 : Fixed number of steps of iterative refinement. No stopping criterion is used. 
+                  0 : No iterative refinement.
+                  > 0 : Maximum number of steps of iterative refinement. A stopping criterion is used,
+                         therefore a test for convergence is done at each step of the iterative refinement algorithm.
+                 Default: 3
+        tol :  is the stopping criterion for iterative refinement
+
+        Make sure you have called `solve()` with the same right-hand
+        side rhs before calling `refine()`.
+        The residual vector self.residual will be updated to reflect
+        the updated approximate solution.
+        """
+        cdef:
+            cnp.npy_intp dim[1]
+
+        if not cnp.PyArray_Check(rhs):
+            raise TypeError('rhs dense arrays must be an NumPy array')
+
+        # check is dimensions are OK
+        rhs_shape = rhs.shape
+
+        if (rhs_shape[0] != self.nrow):
+            raise ValueError("Right hand side has wrong size"
+                             "Attempting to solve the linear system, where A is of size (%d, %d) "
+                             "and rhs is of size (%g)"%(self.nrow, self.nrow, rhs_shape))
+
+        # test number of columns in rhs.
+        # Only one rhs is allowed when dense rhs is provided
+        if rhs.ndim == 1:
+            nrhs = 1
+        else:
+            raise TypeError("Only one dense rhs is allowed for performing an iterative"+
+                            "refinement.")
+
+        # create x
+        x = np.asfortranarray(rhs.copy())
+
+        self.icntl[10] = nitref
+        if tol is None:
+            self.cntl[2] = 0
+        else:
+            self.cntl[2] = tol
+
+        self.solve_dense(<@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(x), rhs_shape[0], nrhs)
+
+        # reset to default values
+        self.icntl[10] = 0
+        self.cntl[2] = -1
 
         return x
+
 
 
 cpdef NumpyMUMPSContext_@index@_@type@(MUMPS_INT n,
                                        cnp.ndarray[MUMPS_INT] a_row,
                                        cnp.ndarray[MUMPS_INT] a_col,
-                                       cnp.ndarray[@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX] a_val,
+                                       cnp.ndarray[@type|generic_to_mumps_type|upper@MUMPS_COMPLEX] a_val,
                                        comm_fortran=-987654, sym=False, verbose=False):
 
     """
@@ -922,20 +977,10 @@ cpdef NumpyMUMPSContext_@index@_@type@(MUMPS_INT n,
     
     assert ncol == nrow
 
-    Py_INCREF(a_row)
-    Py_INCREF(a_col)
-    Py_INCREF(a_val)
-
-    arow = <MUMPS_INT *> PyMem_Malloc(nnz * sizeof(MUMPS_INT))
-    acol = <MUMPS_INT *> PyMem_Malloc(nnz * sizeof(MUMPS_INT))
-    aval = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> PyMem_Malloc(nnz * sizeof(@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX))
-       
-    arow = <MUMPS_INT *> cnp.PyArray_DATA(a_row)
-    acol = <MUMPS_INT *> cnp.PyArray_DATA(a_col)
-    aval = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(a_val)
-
     context = BaseMUMPSContext_@index@_@type@(n, nnz, comm_fortran, sym, verbose)
-    context.get_data_pointers(arow, acol, aval)
+    context.get_data_pointers(<MUMPS_INT *> cnp.PyArray_DATA(a_row),
+                              <MUMPS_INT *> cnp.PyArray_DATA(a_col),
+                              <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(a_val))
 
     return context
 

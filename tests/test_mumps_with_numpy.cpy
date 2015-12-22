@@ -23,50 +23,60 @@ class NumpyMUMPSContextTestCase_@index_type@_@element_type@(TestCase):
         self.sym = False
 
     def test_init(self):
-        self.context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
-        assert_equal(self.sym, self.context.sym)
+        context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
+        assert_equal(self.sym, context.sym)
 
     def test_analyze(self):
-        self.context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
-        self.context.analyze()
-        assert(self.context.analyzed==True)
+        context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
+        context.analyze()
+        assert(context.analyzed==True)
 
     def test_factorize(self):
-        self.context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
-        self.context.factorize()
-        assert(self.context.analyzed==True)
-        assert(self.context.factorized==True)
+        context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
+        context.factorize()
+        assert(context.analyzed==True)
+        assert(context.factorized==True)
 
     def test_dense_solve_single_rhs(self):
-        self.context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
-        self.context.factorize()
+        context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
+        context.factorize()
         e = np.ones(self.n, dtype=np.@element_type|lower@)
         rhs = np.dot(self.A, e)
-        x = self.context.solve(rhs=rhs)
+        x = context.solve(rhs=rhs)
         assert_almost_equal(x,e)
 
     def test_dense_solve_multiple_rhs(self):
-        self.context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
-        self.context.factorize()
+        context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
+        context.factorize()
         B = np.ones([self.n, 3], dtype=np.@element_type|lower@)
         B[: ,1] = 2 * B[:,1]
         B[: ,2] = 3 * B[:,2]
         rhs = np.dot(self.A,B)
-        x = self.context.solve(rhs=rhs)
+        x = context.solve(rhs=rhs)
         assert_almost_equal(x,B,6)
 
     def test_sparse_solve_multiple_rhs(self):
-        self.context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
-        self.context.factorize()
+        context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
+        context.factorize()
         acol_csc = np.array([1,5,9,13,17],
         dtype=np.@index_type|lower@)-1
         arow_csc = np.array([1,2,3,4,1,2,3,4,1,2,3,4,1,2,3,4], dtype=np.@index_type|lower@)-1
         aval_csc = np.array([1,5,9,13,2,0,10,14,3,7,0,15,4,8,12,0], dtype=np.@element_type|lower@)
-        x = self.context.solve(rhs_col_ptr=acol_csc, rhs_row_ind=arow_csc, rhs_val=aval_csc)
+        x = context.solve(rhs_col_ptr=acol_csc, rhs_row_ind=arow_csc, rhs_val=aval_csc)
         assert_almost_equal(x,np.eye(4),6)
+
+    def test_iterative_refinement_single_rhs(self):
+        context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
+        context.factorize()
+        e = np.ones(self.n, dtype=np.@element_type|lower@)
+        rhs = np.dot(self.A, e)
+        x = context.solve(rhs=rhs)
+        x = context.refine(rhs, 3)
+        assert_almost_equal(x,e)
 
 
   {% endfor %}
 {% endfor %}
 
-
+if __name__ == "__main__":
+      run_module_suite()

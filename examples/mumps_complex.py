@@ -1,59 +1,53 @@
-from cysparse.sparse.ll_mat import *
-import cysparse.types.cysparse_types as types
 from mumps.mumps_context import MUMPSContext
-
 import numpy as np
-
 import sys
 
+n = 4
+A = np.array([[1, 2, 3, 4],
+              [5, 0, 7, 8],
+              [9, 10, 0, 12],
+              [13, 14, 15, 0]], dtype=np.complex128)
+arow = np.array([0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3], dtype=np.int32)
+acol = np.array([0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3], dtype=np.int32)
+aval = np.array([1, 2, 3, 4, 5, 0, 7, 8, 9, 10, 0, 12, 13, 14, 15, 0], dtype=np.complex128)
 
-A = NewLLSparseMatrix(mm_filename=sys.argv[1], itype=types.INT32_T, dtype=types.COMPLEX128_T)
+A = A + 1j
+aval = aval + 1j
 
-print A
+context = MUMPSContext((n, arow, acol, aval, False), verbose=True)
 
-
-(n, m) = A.shape
-e = np.ones(n, dtype=np.complex128)
-#rhs = np.zeros(n, 'd')
-rhs = A*e
-
-arow, acol, aval = A.find()
-context = MUMPSContext(n, arow, acol, aval, sym=True, verbose=True)
-
-print context.version_number
+print 'MUMPS version: ', context.version_number
 
 context.analyze()
 context.factorize()
 
+e = np.ones(n, dtype=np.complex128)
+rhs = np.dot(A, e)
+
 x = context.solve(rhs=rhs)
-print "x should be 1-column vector:"
-print x
+print rhs, x
+x = context.refine(rhs, -1)
+print rhs, x
+sys.exit(0)
+np.testing.assert_almost_equal(x,e)
+
 
 print "= " * 80
 
 B = np.ones([n, 3], dtype=np.complex128)
 B[: ,1] = 2 * B[:,1]
 B[: ,2] = 3 * B[:,2]
-
-rhs = A * B
+rhs = np.dot(A,B)
 
 x = context.solve(rhs=rhs)
-print "x should be matrix with first column with only 1, second column with only 2, third column with only 3:"
-print x
-
-print x[:,0]
+np.testing.assert_almost_equal(x,B)
 
 print "x" * 80
-print "sparse example"
+print "Sparse CSC Mutilple RHS example"
 
+acol_csc = np.array([1,5,9,13,17], dtype=np.int32)-1
+arow_csc = np.array([1,2,3,4,1,2,3,4,1,2,3,4,1,2,3,4], dtype=np.int32)-1
+aval_csc = np.array([1,5,9,13,2,0,10,14,3,7,0,15,4,8,12,0], dtype=np.complex128)
+x = context.solve(rhs_col_ptr=acol_csc, rhs_row_ind=arow_csc, rhs_val=aval_csc)
 
-CSC = A.to_csc()
-
-rhs_col_ptr, rhs_row_ind, rhs_val = CSC.get_numpy_arrays()
-print rhs_col_ptr, rhs_row_ind, rhs_val
-print type(rhs_col_ptr), type(rhs_row_ind), type(rhs_val)
-
-x = context.solve(rhs_col_ptr=rhs_col_ptr, rhs_row_ind=rhs_row_ind, rhs_val=rhs_val)
-
-print "x should be the identity matrix (with 3072 columns)"
 print x

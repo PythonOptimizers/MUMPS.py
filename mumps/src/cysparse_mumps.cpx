@@ -1,12 +1,12 @@
 from cysparse.sparse.ll_mat_matrices.ll_mat_@index@_t_@type@_t cimport LLSparseMatrix_@index@_t_@type@_t
 from cysparse.sparse.csc_mat_matrices.csc_mat_@index@_t_@type@_t cimport CSCSparseMatrix_@index@_t_@type@_t
 
-from cysparse.types.cysparse_numpy_types import are_mixed_types_compatible, cysparse_to_numpy_type
-from cysparse.types.cysparse_types import *
+from cysparse.cysparse_types.cysparse_numpy_types import are_mixed_types_compatible, cysparse_to_numpy_type
+from cysparse.cysparse_types.cysparse_types import *
 
 from mumps.src.mumps_@index@_@type@ cimport BaseMUMPSContext_@index@_@type@, c_to_fortran_index_array, MUMPS_INT
 {% if type in complex_list %} 
-from mumps.src.mumps_@index@_@type@ cimport @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX
+from mumps.src.mumps_@index@_@type@ cimport @type|generic_to_mumps_type|upper@MUMPS_COMPLEX
 {% endif %}
 
 from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
@@ -55,7 +55,7 @@ cpdef CySparseMUMPSContext_@index@_@type@(LLSparseMatrix_@index@_t_@type@_t A, c
 {% if type in complex_list %} 
     a_val = <@type@_t *> PyMem_Malloc(nnz * sizeof(@type@_t))
     A.take_triplet_pointers(arow, acol, a_val)
-    aval = <@type|numpy_to_mumps_type|upper@MUMPS_COMPLEX *> a_val
+    aval = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> a_val
 {% else %}
     aval = <@type@_t *> PyMem_Malloc(nnz * sizeof(@type@_t))
     A.take_triplet_pointers(arow, acol, aval)

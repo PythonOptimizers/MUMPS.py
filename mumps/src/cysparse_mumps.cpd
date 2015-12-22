@@ -1,12 +1,12 @@
-from cysparse.types.cysparse_types cimport *
+from cysparse.cysparse_types.cysparse_types cimport *
 
 from cysparse.sparse.ll_mat_matrices.ll_mat_@index@_t_@type@_t cimport LLSparseMatrix_@index@_t_@type@_t
 from cysparse.sparse.csc_mat_matrices.csc_mat_@index@_t_@type@_t cimport CSCSparseMatrix_@index@_t_@type@_t
-from cysparse.types.cysparse_types import *
+from cysparse.cysparse_types.cysparse_types import *
 
 from mumps.src.mumps_@index@_@type@ cimport BaseMUMPSContext_@index@_@type@
 {% if type in complex_list %} 
-from mumps.src.mumps_@index@_@type@ cimport @type|numpy_to_mumps_type|upper@MUMPS_COMPLEX
+from mumps.src.mumps_@index@_@type@ cimport @type|generic_to_mumps_type|upper@MUMPS_COMPLEX
 {% endif %}
 
 cimport numpy as cnp
