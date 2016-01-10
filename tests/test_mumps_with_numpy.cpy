@@ -11,8 +11,8 @@ from numpy.testing import *
 import sys
 
 
-{% for index_type in mumps_index_list %}
-    {% for element_type in mumps_type_list %}
+{% for index_type in index_list %}
+    {% for element_type in type_list %}
 class NumpyMUMPSContextTestCase_@index_type@_@element_type@(TestCase):
     def setUp(self):
         self.n = 4

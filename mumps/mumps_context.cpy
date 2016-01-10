@@ -3,16 +3,16 @@ Factory method to access MUMPS.
 """
 import numpy as np
 
-{% for index_type in mumps_index_list %}
-    {% for element_type in mumps_type_list %}
+{% for index_type in index_list %}
+    {% for element_type in type_list %}
 from mumps.src.mumps_@index_type@_@element_type@ import NumpyMUMPSContext_@index_type@_@element_type@
     {% endfor %}
 {% endfor %}
 
 cysparse_installed = False
 try:
-{% for index_type in mumps_index_list %}
-    {% for element_type in mumps_type_list %}
+{% for index_type in index_list %}
+    {% for element_type in type_list %}
     from mumps.src.cysparse_mumps_@index_type@_@element_type@ import CySparseMUMPSContext_@index_type@_@element_type@
     {% endfor %}
     from cysparse.sparse.ll_mat import PyLLSparseMatrix_Check
@@ -23,14 +23,14 @@ except:
     pass
 
 allowed_types = '\titype:
-{%- for index_name in mumps_index_list -%}
+{%- for index_name in index_list -%}
     @index_name@
     {%- if index_name != mumps_index_list|last -%}
     ,
     {%- endif -%}
 {%- endfor -%}
 \n\tdtype:
-{%- for element_name in mumps_type_list -%}
+{%- for element_name in type_list -%}
     @element_name@
     {%- if element_name != mumps_type_list|last -%}
     ,
@@ -78,11 +78,11 @@ def MUMPSContext(arg1, verbose=False):
         itype = a_row.dtype
         dtype = a_val.dtype
 
-{% for index_type in mumps_index_list %}
-  {% if index_type == mumps_index_list |first %}
+{% for index_type in index_list %}
+  {% if index_type == index_list |first %}
         if itype == np.@index_type|lower@:
-      {% for element_type in mumps_type_list %}
-        {% if element_type == mumps_type_list |first %}
+      {% for element_type in type_list %}
+        {% if element_type == type_list |first %}
             if dtype == np.@element_type|lower@:
         {% else %}
             elif dtype == np.@element_type|lower@:
@@ -91,8 +91,8 @@ def MUMPSContext(arg1, verbose=False):
       {% endfor %}
   {% else %}
         elif itype == np.@index_type|lower@:
-      {% for element_type in mumps_type_list %}
-        {% if element_type == mumps_type_list |first %}
+      {% for element_type in type_list %}
+        {% if element_type == type_list |first %}
             if dtype == np.@element_type|lower@:
         {% else %}
             elif dtype == np.@element_type|lower@:
@@ -112,11 +112,11 @@ def MUMPSContext(arg1, verbose=False):
         itype = A.itype
         dtype = A.dtype
 
-{% for index_type in mumps_index_list %}
-    {% if index_type == mumps_index_list |first %}
+{% for index_type in index_list %}
+    {% if index_type == index_list |first %}
         if itype == @index_type@_T:
-    {% for element_type in mumps_type_list %}
-        {% if element_type == mumps_type_list |first %}
+    {% for element_type in type_list %}
+        {% if element_type == type_list |first %}
             if dtype == @element_type@_T:
         {% else %}
             elif dtype == @element_type@_T:
@@ -125,8 +125,8 @@ def MUMPSContext(arg1, verbose=False):
     {% endfor %}
     {% else %}
         elif itype == @index_type@_T:
-    {% for element_type in mumps_type_list %}
-        {% if element_type == mumps_type_list |first %}
+    {% for element_type in type_list %}
+        {% if element_type == type_list |first %}
             if dtype == @element_type@_T:
         {% else %}
             elif dtype == @element_type@_T:

@@ -251,6 +251,7 @@ if __name__ == "__main__":
                                    single_generation)
     cygenja_engine.register_action('mumps/src', '*.*',
                                    generate_following_index_and_element)
+    cygenja_engine.register_action('tests', '*.*', single_generation)
 
     # Generation
     if arg_options.dry_run:

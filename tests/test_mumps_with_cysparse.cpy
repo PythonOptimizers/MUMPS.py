@@ -13,8 +13,8 @@ from numpy.testing import *
 import sys
 
 
-{% for index_type in mumps_index_list %}
-    {% for element_type in mumps_type_list %}
+{% for index_type in index_list %}
+    {% for element_type in type_list %}
 class CySparseMUMPSContextTestCase_@index_type@_@element_type@(TestCase):
     def setUp(self):
         self.n = 4
@@ -22,7 +22,7 @@ class CySparseMUMPSContextTestCase_@index_type@_@element_type@(TestCase):
         acol = np.array([0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3], dtype=np.@index_type|lower@)
         aval = np.array([1, 2, 3, 4, 5, 0, 7, 8, 9, 10, 0, 12, 13, 14, 15, 0], dtype=np.@element_type|lower@)
         self.sym = False
-        self.A = NewLLSparseMatrix(size=self.n, itype=types.@index_type@_T, dtype=types.@element_type@_T)
+        self.A = LLSparseMatrix(size=self.n, itype=types.@index_type@_T, dtype=types.@element_type@_T)
         self.A.put_triplet(arow, acol, aval)
 
     def test_init(self):
