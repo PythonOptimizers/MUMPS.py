@@ -5,7 +5,7 @@ import numpy as np
 
 {% for index_type in index_list %}
     {% for element_type in type_list %}
-from mumps.src.mumps_@index_type@_@element_type@ import NumpyMUMPSContext_@index_type@_@element_type@
+from mumps.src.numpy_mumps_@index_type@_@element_type@ import NumpyMUMPSSolver_@index_type@_@element_type@
     {% endfor %}
 {% endfor %}
 
@@ -13,7 +13,7 @@ cysparse_installed = False
 try:
 {% for index_type in index_list %}
     {% for element_type in type_list %}
-    from mumps.src.cysparse_mumps_@index_type@_@element_type@ import CySparseMUMPSContext_@index_type@_@element_type@
+    from mumps.src.cysparse_mumps_@index_type@_@element_type@ import CySparseMUMPSSolver_@index_type@_@element_type@
     {% endfor %}
     from cysparse.sparse.ll_mat import PyLLSparseMatrix_Check
     from cysparse.types.cysparse_types import *
@@ -73,6 +73,10 @@ def MUMPSContext(arg1, verbose=False):
         a_row = arg1[1]
         a_col = arg1[2]
         a_val = arg1[3]
+        nnz = a_row.shape[0]
+        assert a_col.shape[0] == nnz
+        assert a_val.shape[0] == nnz
+
         sym = arg1[4]
 
         itype = a_row.dtype
@@ -87,7 +91,9 @@ def MUMPSContext(arg1, verbose=False):
         {% else %}
             elif dtype == np.@element_type|lower@:
         {% endif %}
-                return NumpyMUMPSContext_@index_type@_@element_type@(n, a_row, a_col, a_val, sym=sym, verbose=verbose)
+                solver = NumpyMUMPSSolver_@index_type@_@element_type@(n, nnz, sym=sym, verbose=verbose)
+                solver.get_matrix_data(a_row, a_col, a_val)
+                return solver
       {% endfor %}
   {% else %}
         elif itype == np.@index_type|lower@:
@@ -97,7 +103,9 @@ def MUMPSContext(arg1, verbose=False):
         {% else %}
             elif dtype == np.@element_type|lower@:
         {% endif %}
-                return NumpyMUMPSContext_@index_type@_@element_type@(n, a_row, a_col, a_val, sym=sym, verbose=verbose)
+                solver = NumpyMUMPSSolver_@index_type@_@element_type@(n, nnz, sym=sym, verbose=verbose)
+                solver.get_matrix_data(a_row, a_col, a_val)
+                return solver
       {% endfor %}
   {% endif %}
 {% endfor %}
@@ -109,8 +117,12 @@ def MUMPSContext(arg1, verbose=False):
             raise TypeError('arg1 should be a LLSparseMatrix')
 
         A = arg1
+        nnz = A.nnz
         itype = A.itype
         dtype = A.dtype
+        n = A.nrow
+        sym = A.is_symmetric
+        assert A.ncol == n
 
 {% for index_type in index_list %}
     {% if index_type == index_list |first %}
@@ -121,7 +133,9 @@ def MUMPSContext(arg1, verbose=False):
         {% else %}
             elif dtype == @element_type@_T:
         {% endif %}
-                return CySparseMUMPSContext_@index_type@_@element_type@(A, verbose=verbose)
+                solver = CySparseMUMPSSolver_@index_type@_@element_type@(n, nnz, sym=sym, verbose=verbose)
+                solver.get_matrix_data(A)
+                return solver
     {% endfor %}
     {% else %}
         elif itype == @index_type@_T:
@@ -131,7 +145,9 @@ def MUMPSContext(arg1, verbose=False):
         {% else %}
             elif dtype == @element_type@_T:
         {% endif %}
-                return CySparseMUMPSContext_@index_type@_@element_type@(A, verbose=verbose)
+                solver = CySparseMUMPSSolver_@index_type@_@element_type@(n, nnz, sym=sym, verbose=verbose)
+                solver.get_matrix_data(A)
+                return solver
     {% endfor %}
     {% endif %}
 {% endfor %}

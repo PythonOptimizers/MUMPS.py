@@ -1,11 +1,8 @@
 from cysparse.sparse.ll_mat_matrices.ll_mat_@index@_t_@type@_t cimport LLSparseMatrix_@index@_t_@type@_t
-from cysparse.sparse.csc_mat_matrices.csc_mat_@index@_t_@type@_t cimport CSCSparseMatrix_@index@_t_@type@_t
-from cysparse.common_types.cysparse_types import *
 
-from mumps.src.mumps_@index@_@type@ cimport BaseMUMPSContext_@index@_@type@
-{% if type in complex_list %} 
-from mumps.src.mumps_@index@_@type@ cimport @type|generic_to_mumps_type|upper@MUMPS_COMPLEX
-{% endif %}
+from mumps.src.mumps_@index@_@type@ cimport BaseMUMPSSolver_@index@_@type@
 
 cimport numpy as cnp
-
+cdef class CySparseMUMPSSolver_@index@_@type@(BaseMUMPSSolver_@index@_@type@):
+    cpdef get_matrix_data(self, LLSparseMatrix_@index@_t_@type@_t A)
+ 

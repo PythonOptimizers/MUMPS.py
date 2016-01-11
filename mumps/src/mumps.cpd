@@ -136,7 +136,7 @@ cdef class @type|generic_to_mumps_type@mumps_real_array:
 
 cdef c_to_fortran_index_array(MUMPS_INT * a, MUMPS_INT a_size)
 
-cdef class BaseMUMPSContext_@index@_@type@:
+cdef class BaseMUMPSSolver_@index@_@type@:
     cdef:
 
         MUMPS_INT nrow

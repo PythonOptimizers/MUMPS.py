@@ -128,12 +128,12 @@ mumps_ext.append(Extension(name="mumps.src.mumps_@index_type@_@element_type@",
                 'mumps/src/mumps_@index_type@_@element_type@.pyx'],
                 **base_ext_params_@index_type@_@element_type@))
 
-#numpy_ext_params_@index_type@_@element_type@ = copy.deepcopy(ext_params)
-#numpy_ext_params_@index_type@_@element_type@['include_dirs'].extend(mumps_include_dirs)
-#mumps_ext.append(Extension(name="mumps.src.numpy_mumps_@index_type@_@element_type@",
-#                 sources=['mumps/src/numpy_mumps_@index_type@_@element_type@.pxd',
-#                 'mumps/src/numpy_mumps_@index_type@_@element_type@.pyx'],
-#                 **numpy_ext_params_@index_type@_@element_type@))
+numpy_ext_params_@index_type@_@element_type@ = copy.deepcopy(ext_params)
+numpy_ext_params_@index_type@_@element_type@['include_dirs'].extend(mumps_include_dirs)
+mumps_ext.append(Extension(name="mumps.src.numpy_mumps_@index_type@_@element_type@",
+                 sources=['mumps/src/numpy_mumps_@index_type@_@element_type@.pxd',
+                 'mumps/src/numpy_mumps_@index_type@_@element_type@.pyx'],
+                 **numpy_ext_params_@index_type@_@element_type@))
 
   {% endfor %}
 {% endfor %}

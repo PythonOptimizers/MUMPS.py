@@ -1,5 +1,5 @@
 """
-This is the interface to MUMPS (http://mumps.enseeiht.fr/index.php?page=home)
+This is the base class for the interface to MUMPS (http://mumps.enseeiht.fr/index.php?page=home)
 
 """
 
@@ -320,11 +320,11 @@ cdef c_to_fortran_index_array(MUMPS_INT * a, MUMPS_INT a_size):
         a[i] += 1
 
 # MUMPS CONTEXT
-cdef class BaseMUMPSContext_@index@_@type@:
+cdef class BaseMUMPSSolver_@index@_@type@:
     """
     Base MUMPS Context.
 
-    This version **only** deals pointers.
+    This version **only** deals with array pointers.
 
     We follow the common use of MUMPS. In particular, we use the same names for the methods of this
     class as their corresponding counter-parts in MUMPS.
@@ -335,15 +335,10 @@ cdef class BaseMUMPSContext_@index@_@type@:
         """
         Args:
             n: size of matrix A
-            a_row: row indices pointer of non zero elements of A
-            a_col: column indices pointer of non zero elements of A
-            a_val: values pointer of non zeros elements of A
+            nnz: number of non zero elements of matrix A
+            comm_fortran: MPI communicator
             sym:   a boolean indicating if A is a symmetric matrix or not
             verbose: a boolean to turn on or off the verbosity of MUMPS
-
-        Warning: if the numpy arrays are modified externally by the user between 2 calls to solve,
-        the changes in arrays won't be passed to MUMPS.
-
         """
         self.nrow = n
         self.ncol = n
@@ -367,8 +362,12 @@ cdef class BaseMUMPSContext_@index@_@type@:
 
     cdef initialize_mumps_struct(self, comm_fortran, sym):
         """
-        Initialize MUMPS struct and make control parameters and information
+        Initialize MUMPS structure and make control parameters and information
         avalaible to user.
+
+        Args:
+            comm_fortran: MPI communicator
+            sym: a boolean indicating if A is a symmetric matrix or not
         """
         self.params.job = -1
         self.params.sym = sym
@@ -407,6 +406,16 @@ cdef class BaseMUMPSContext_@index@_@type@:
                            MUMPS_INT * a_row,
                            MUMPS_INT * a_col,
                            @type|generic_to_mumps_type|upper@MUMPS_COMPLEX * a_val):
+        """
+        Get elements of A and their positions and transfer them to MUMPS internal structure.
+        
+        Args:
+            a_row: pointer to an MUMPS_INT array containing row indices of non zero elements of A.
+            a_col: pointer to an MUMPS_INT array containing column indices of non zero elements of A.
+            a_val: pointer to an MUMPS_INT array containing values of non zeros elements of A.
+
+        Note: row and column indices are adjusted for Fortran indexing.
+        """
 
         self.a_row = <MUMPS_INT *> a_row
         self.a_col = <MUMPS_INT *> a_col
@@ -946,41 +955,3 @@ cdef class BaseMUMPSContext_@index@_@type@:
         self.cntl[2] = -1
 
         return x
-
-
-
-cpdef NumpyMUMPSContext_@index@_@type@(MUMPS_INT n,
-                                       cnp.ndarray[MUMPS_INT] a_row,
-                                       cnp.ndarray[MUMPS_INT] a_col,
-                                       cnp.ndarray[@type|generic_to_mumps_type|upper@MUMPS_COMPLEX] a_val,
-                                       comm_fortran=-987654, sym=False, verbose=False):
-
-    """
-    MUMPS Context.
-
-    We follow the common use of MUMPS. In particular, we use the same names for the methods of this
-    class as their corresponding counter-parts in MUMPS.
-    Args:
-        n: size of matrix A
-        a_row: row indices of non zero elements of A
-        a_col: column indices of non zero elements of A
-        a_val: values of non zeros elements of A
-        sym:   a boolean indicating if A is a symmetric matrix or not
-        verbose: a boolean to turn on or off the verbosity of MUMPS
-
-    Warning: if the numpy arrays are modified externally by the user between 2 calls to solve,
-    the changes in arrays won't be passed to MUMPS.
-    """
-    nrow = n
-    ncol = n
-    nnz = a_val.size
-    
-    assert ncol == nrow
-
-    context = BaseMUMPSContext_@index@_@type@(n, nnz, comm_fortran, sym, verbose)
-    context.get_data_pointers(<MUMPS_INT *> cnp.PyArray_DATA(a_row),
-                              <MUMPS_INT *> cnp.PyArray_DATA(a_col),
-                              <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(a_val))
-
-    return context
-
