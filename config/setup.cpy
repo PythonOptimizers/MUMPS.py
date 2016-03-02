@@ -209,28 +209,3 @@ if use_cython:
     setup_args['cmdclass'] = {'build_ext': build_ext}
 
 setup(**setup_args)
-setup(name=  'mumps.py',
-      version=version['version'],
-      description='A python interface to MUMPS',
-      long_description=long_description,
-      #Author details
-      author='Nikolaj van Omme, Sylvain Arreckx, Dominique Orban',
-{% raw %}
-      author_email='mumps\@TODO.com',
-{% endraw %}
-      maintainer = "MUMPS.py Developers",
-{% raw %}
-      maintainer_email = "sylvain.arreckx@gmail.com",
-{% endraw %}
-      summary = "A python interface to MUMPS",
-      url = "https://github.com/PythonOptimizers/MUMPS.py",
-      download_url = "https://github.com/PythonOptimizers/MUMPS.py",
-      license='LGPL',
-      classifiers=filter(None, CLASSIFIERS.split('\n')),
-      install_requires=['numpy', 'Cython'],
-      cmdclass = {'build_ext': build_ext},
-      ext_modules = mumps_ext,
-      package_dir = {"mumps": "mumps"},
-      packages=packages_list,
-      zip_safe=False
-)
