@@ -16,7 +16,7 @@ try:
     from mumps.src.cysparse_mumps_@index_type@_@element_type@ import CySparseMUMPSSolver_@index_type@_@element_type@
     {% endfor %}
     from cysparse.sparse.ll_mat import PyLLSparseMatrix_Check
-    from cysparse.types.cysparse_types import *
+    from cysparse.common_types.cysparse_types import *
     cysparse_installed = True
 {% endfor %}
 except:

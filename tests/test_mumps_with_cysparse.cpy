@@ -5,7 +5,7 @@ This file tests basic umfpack operations on **all** types supported by MUMPS
 and on symmetric and general matrices.
 """
 from cysparse.sparse.ll_mat import *
-import cysparse.types.cysparse_types as types
+import cysparse.common_types.cysparse_types as types
 
 from mumps.mumps_context import MUMPSContext
 import numpy as np
@@ -54,7 +54,10 @@ class CySparseMUMPSContextTestCase_@index_type@_@element_type@(TestCase):
         B = np.ones([self.n, 3], dtype=np.@element_type|lower@)
         B[: ,1] = 2 * B[:,1]
         B[: ,2] = 3 * B[:,2]
-        rhs = self.A * B
+        rhs = np.ones([self.n, 3], dtype=np.@element_type|lower@)
+        rhs[:, 0] = self.A * B[:, 0]
+        rhs[:, 1] = self.A * B[:, 1]
+        rhs[:, 2] = self.A * B[:, 2]
         x = context.solve(rhs=rhs)
         assert_almost_equal(x,B,6)
 
