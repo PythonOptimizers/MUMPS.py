@@ -1,6 +1,8 @@
 # MUMPS.py
 Python inferface to MUMPS ([MUltifrontal Massively Parallel sparse direct Solver](http://mumps.enseeiht.fr/)).
 
+[![Build Status](https://travis-ci.com/PythonOptimizers/MUMPS.py.svg?token=33z5zptBt5SzXC4ZvLpF&branch=without-cython)](https://travis-ci.com/PythonOptimizers/MUMPS.py)
+
 It supports all four types (single real, double real, single complex and double complex).
 
 
