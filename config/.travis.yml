@@ -4,7 +4,7 @@ os:
     - osx
 before_install:
     - brew update
-    - brew install homebrew/science/mumps
+    - brew install homebrew/science/mumps --with-openblas --without-mpi
 install: 
     - pip install virtualenv
     - virtualenv ~/.venv
