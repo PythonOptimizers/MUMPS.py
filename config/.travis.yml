@@ -1,0 +1,15 @@
+language: 
+    - objective-c
+os:
+    - osx
+before_install:
+    - brew update
+    - brew install homebrew/science/mumps
+install: 
+    - pip install virtualenv
+    - virtualenv ~/.venv
+    - source ~/.venv/bin/activate
+    - cp site.template.cfg site.cfg
+    - "pip install -r requirements.txt && python setup.py install"
+    - pip install nose
+script: python run_tests.py
