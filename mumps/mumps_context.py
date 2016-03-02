@@ -3,40 +3,24 @@ Factory method to access MUMPS.
 """
 import numpy as np
 
-{% for index_type in index_list %}
-    {% for element_type in type_list %}
-from mumps.src.numpy_mumps_@index_type@_@element_type@ import NumpyMUMPSSolver_@index_type@_@element_type@
-    {% endfor %}
-{% endfor %}
+from mumps.src.numpy_mumps_INT32_COMPLEX64 import NumpyMUMPSSolver_INT32_COMPLEX64
+from mumps.src.numpy_mumps_INT32_COMPLEX128 import NumpyMUMPSSolver_INT32_COMPLEX128
+from mumps.src.numpy_mumps_INT32_FLOAT32 import NumpyMUMPSSolver_INT32_FLOAT32
+from mumps.src.numpy_mumps_INT32_FLOAT64 import NumpyMUMPSSolver_INT32_FLOAT64
 
 cysparse_installed = False
 try:
-{% for index_type in index_list %}
-    {% for element_type in type_list %}
-    from mumps.src.cysparse_mumps_@index_type@_@element_type@ import CySparseMUMPSSolver_@index_type@_@element_type@
-    {% endfor %}
+    from mumps.src.cysparse_mumps_INT32_COMPLEX64 import CySparseMUMPSSolver_INT32_COMPLEX64
+    from mumps.src.cysparse_mumps_INT32_COMPLEX128 import CySparseMUMPSSolver_INT32_COMPLEX128
+    from mumps.src.cysparse_mumps_INT32_FLOAT32 import CySparseMUMPSSolver_INT32_FLOAT32
+    from mumps.src.cysparse_mumps_INT32_FLOAT64 import CySparseMUMPSSolver_INT32_FLOAT64
     from cysparse.sparse.ll_mat import PyLLSparseMatrix_Check
     from cysparse.common_types.cysparse_types import *
     cysparse_installed = True
-{% endfor %}
 except:
     pass
 
-allowed_types = '\titype:
-{%- for index_name in index_list -%}
-    @index_name@
-    {%- if index_name != mumps_index_list|last -%}
-    ,
-    {%- endif -%}
-{%- endfor -%}
-\n\tdtype:
-{%- for element_name in type_list -%}
-    @element_name@
-    {%- if element_name != mumps_type_list|last -%}
-    ,
-    {%- endif -%}
-{%- endfor -%}
-\n'
+allowed_types = '\titype:INT32,\n\tdtype:COMPLEX64,COMPLEX128,FLOAT32,FLOAT64,\n'
 type_error_msg = 'Matrix has an index and/or element type that is incompatible with MUMPS\nAllowed types:\n%s' % allowed_types
 
 def MUMPSContext(arg1, verbose=False):
@@ -82,33 +66,23 @@ def MUMPSContext(arg1, verbose=False):
         itype = a_row.dtype
         dtype = a_val.dtype
 
-{% for index_type in index_list %}
-  {% if index_type == index_list |first %}
-        if itype == np.@index_type|lower@:
-      {% for element_type in type_list %}
-        {% if element_type == type_list |first %}
-            if dtype == np.@element_type|lower@:
-        {% else %}
-            elif dtype == np.@element_type|lower@:
-        {% endif %}
-                solver = NumpyMUMPSSolver_@index_type@_@element_type@(n, nnz, sym=sym, verbose=verbose)
+        if itype == np.int32:
+            if dtype == np.complex64:
+                solver = NumpyMUMPSSolver_INT32_COMPLEX64(n, nnz, sym=sym, verbose=verbose)
                 solver.get_matrix_data(a_row, a_col, a_val)
                 return solver
-      {% endfor %}
-  {% else %}
-        elif itype == np.@index_type|lower@:
-      {% for element_type in type_list %}
-        {% if element_type == type_list |first %}
-            if dtype == np.@element_type|lower@:
-        {% else %}
-            elif dtype == np.@element_type|lower@:
-        {% endif %}
-                solver = NumpyMUMPSSolver_@index_type@_@element_type@(n, nnz, sym=sym, verbose=verbose)
+            elif dtype == np.complex128:
+                solver = NumpyMUMPSSolver_INT32_COMPLEX128(n, nnz, sym=sym, verbose=verbose)
                 solver.get_matrix_data(a_row, a_col, a_val)
                 return solver
-      {% endfor %}
-  {% endif %}
-{% endfor %}
+            elif dtype == np.float32:
+                solver = NumpyMUMPSSolver_INT32_FLOAT32(n, nnz, sym=sym, verbose=verbose)
+                solver.get_matrix_data(a_row, a_col, a_val)
+                return solver
+            elif dtype == np.float64:
+                solver = NumpyMUMPSSolver_INT32_FLOAT64(n, nnz, sym=sym, verbose=verbose)
+                solver.get_matrix_data(a_row, a_col, a_val)
+                return solver
         else:
             raise TypeError(type_error_msg)
 
@@ -124,33 +98,22 @@ def MUMPSContext(arg1, verbose=False):
         sym = A.is_symmetric
         assert A.ncol == n
 
-{% for index_type in index_list %}
-    {% if index_type == index_list |first %}
-        if itype == @index_type@_T:
-    {% for element_type in type_list %}
-        {% if element_type == type_list |first %}
-            if dtype == @element_type@_T:
-        {% else %}
-            elif dtype == @element_type@_T:
-        {% endif %}
-                solver = CySparseMUMPSSolver_@index_type@_@element_type@(n, nnz, sym=sym, verbose=verbose)
+        if itype == INT32_T:
+            if dtype == COMPLEX64_T:
+                solver = CySparseMUMPSSolver_INT32_COMPLEX64(n, nnz, sym=sym, verbose=verbose)
                 solver.get_matrix_data(A)
                 return solver
-    {% endfor %}
-    {% else %}
-        elif itype == @index_type@_T:
-    {% for element_type in type_list %}
-        {% if element_type == type_list |first %}
-            if dtype == @element_type@_T:
-        {% else %}
-            elif dtype == @element_type@_T:
-        {% endif %}
-                solver = CySparseMUMPSSolver_@index_type@_@element_type@(n, nnz, sym=sym, verbose=verbose)
+            elif dtype == COMPLEX128_T:
+                solver = CySparseMUMPSSolver_INT32_COMPLEX128(n, nnz, sym=sym, verbose=verbose)
                 solver.get_matrix_data(A)
                 return solver
-    {% endfor %}
-    {% endif %}
-{% endfor %}
+            elif dtype == FLOAT32_T:
+                solver = CySparseMUMPSSolver_INT32_FLOAT32(n, nnz, sym=sym, verbose=verbose)
+                solver.get_matrix_data(A)
+                return solver
+            elif dtype == FLOAT64_T:
+                solver = CySparseMUMPSSolver_INT32_FLOAT64(n, nnz, sym=sym, verbose=verbose)
+                solver.get_matrix_data(A)
+                return solver
         else:
             raise TypeError(type_error_msg)
-

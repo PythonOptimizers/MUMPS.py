@@ -1,10 +1,9 @@
 from cysparse.common_types.cysparse_types cimport *
-from cysparse.sparse.ll_mat_matrices.ll_mat_@index@_t_@type@_t cimport LLSparseMatrix_@index@_t_@type@_t
+from cysparse.sparse.ll_mat_matrices.ll_mat_INT32_t_COMPLEX64_t cimport LLSparseMatrix_INT32_t_COMPLEX64_t
 
-from mumps.src.mumps_@index@_@type@ cimport BaseMUMPSSolver_@index@_@type@, c_to_fortran_index_array, MUMPS_INT
-{% if type in complex_list %} 
-from mumps.src.mumps_@index@_@type@ cimport @type|generic_to_mumps_type|upper@MUMPS_COMPLEX
-{% endif %}
+from mumps.src.mumps_INT32_COMPLEX64 cimport BaseMUMPSSolver_INT32_COMPLEX64, c_to_fortran_index_array, MUMPS_INT
+ 
+from mumps.src.mumps_INT32_COMPLEX64 cimport CMUMPS_COMPLEX
 
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 
@@ -18,11 +17,11 @@ cnp.import_array()
 
 import time
 
-cdef class CySparseMUMPSSolver_@index@_@type@(BaseMUMPSSolver_@index@_@type@):
+cdef class CySparseMUMPSSolver_INT32_COMPLEX64(BaseMUMPSSolver_INT32_COMPLEX64):
     """
     MUMPS Context.
 
-    This version **only** deals with ``LLSparseMatrix_@index@_t_@type@_t`` objects.
+    This version **only** deals with ``LLSparseMatrix_INT32_t_COMPLEX64_t`` objects.
 
     We follow the common use of MUMPS. In particular, we use the same names for the methods of this
     class as their corresponding counter-parts in MUMPS.
@@ -49,10 +48,10 @@ cdef class CySparseMUMPSSolver_@index@_@type@(BaseMUMPSSolver_@index@_@type@):
         PyMem_Free(self.params.jcn)
         PyMem_Free(self.params.a)
 
-    cpdef get_matrix_data(self, LLSparseMatrix_@index@_t_@type@_t A):
+    cpdef get_matrix_data(self, LLSparseMatrix_INT32_t_COMPLEX64_t A):
         """
         Args:
-            A: :class:`LLSparseMatrix_@index@_t_@type@_t` object.
+            A: :class:`LLSparseMatrix_INT32_t_COMPLEX64_t` object.
 
         Note: we keep the same name for this method in all derived classes.
         """
@@ -66,13 +65,9 @@ cdef class CySparseMUMPSSolver_@index@_@type@(BaseMUMPSSolver_@index@_@type@):
         arow = <MUMPS_INT *> PyMem_Malloc(nnz * sizeof(MUMPS_INT))
         acol = <MUMPS_INT *> PyMem_Malloc(nnz * sizeof(MUMPS_INT))
  
-{% if type in complex_list %} 
-        a_val = <@type@_t *> PyMem_Malloc(nnz * sizeof(@type@_t))
+ 
+        a_val = <COMPLEX64_t *> PyMem_Malloc(nnz * sizeof(COMPLEX64_t))
         A.fill_triplet(arow, acol, a_val)
-        aval = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> a_val
-{% else %}
-        aval = <@type@_t *> PyMem_Malloc(nnz * sizeof(@type@_t))
-        A.fill_triplet(arow, acol, aval)
-{% endif %}
+        aval = <CMUMPS_COMPLEX *> a_val
 
         self.get_data_pointers(arow, acol, aval)

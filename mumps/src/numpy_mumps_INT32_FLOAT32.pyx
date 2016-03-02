@@ -1,5 +1,5 @@
-from mumps.src.mumps_@index@_@type@ cimport BaseMUMPSSolver_@index@_@type@, c_to_fortran_index_array, MUMPS_INT
-from mumps.src.mumps_@index@_@type@ cimport @type|generic_to_mumps_type|upper@MUMPS_COMPLEX
+from mumps.src.mumps_INT32_FLOAT32 cimport BaseMUMPSSolver_INT32_FLOAT32, c_to_fortran_index_array, MUMPS_INT
+from mumps.src.mumps_INT32_FLOAT32 cimport SMUMPS_COMPLEX
 
 import numpy as np
 cimport numpy as cnp
@@ -7,7 +7,7 @@ cimport numpy as cnp
 cnp.import_array()
 
 
-cdef class NumpyMUMPSSolver_@index@_@type@(BaseMUMPSSolver_@index@_@type@):
+cdef class NumpyMUMPSSolver_INT32_FLOAT32(BaseMUMPSSolver_INT32_FLOAT32):
     """
     MUMPS Context.
 
@@ -36,7 +36,7 @@ cdef class NumpyMUMPSSolver_@index@_@type@(BaseMUMPSSolver_@index@_@type@):
 
     cpdef get_matrix_data(self, cnp.ndarray[MUMPS_INT, ndim=1] arow,
                                 cnp.ndarray[MUMPS_INT, ndim=1] acol,
-                                cnp.ndarray[@type|generic_to_mumps_type|upper@MUMPS_COMPLEX, ndim=1] aval):
+                                cnp.ndarray[SMUMPS_COMPLEX, ndim=1] aval):
         """
 
         Args:
@@ -53,4 +53,4 @@ cdef class NumpyMUMPSSolver_@index@_@type@(BaseMUMPSSolver_@index@_@type@):
 
         self.get_data_pointers(<MUMPS_INT *> cnp.PyArray_DATA(arow),
                                <MUMPS_INT *> cnp.PyArray_DATA(acol),
-                               <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(aval))
+                               <SMUMPS_COMPLEX *> cnp.PyArray_DATA(aval))

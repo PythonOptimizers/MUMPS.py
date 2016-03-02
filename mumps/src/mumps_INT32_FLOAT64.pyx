@@ -51,9 +51,9 @@ Each MUMPS_STRUC_C is specialized and prefixed by a letter:
 - CMUMPS_STRUC_C: simple complex;
 - ZMUMPS_STRUC_C: double complex.
 
-In MUMPSContext_@index@_@type@, (S,D,C,Z)mumps_c() is called by self.mumps_call().
+In MUMPSContext_INT32_FLOAT64, (S,D,C,Z)mumps_c() is called by self.mumps_call().
 
-<@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> can be used for **ALL** four types.
+<DMUMPS_COMPLEX *> can be used for **ALL** four types.
 
 Solve:
 ------
@@ -123,14 +123,14 @@ cdef extern from "mumps_c_types.h":
     ctypedef mumps_double_complex  ZMUMPS_COMPLEX
     ctypedef double                ZMUMPS_REAL
 
-cdef extern from "@type|generic_to_mumps_type@mumps_c.h":
-    ctypedef struct @type|generic_to_mumps_type|upper@MUMPS_STRUC_C:
+cdef extern from "dmumps_c.h":
+    ctypedef struct DMUMPS_STRUC_C:
         MUMPS_INT      sym, par, job
         MUMPS_INT      comm_fortran    # Fortran communicator
         MUMPS_INT      icntl[40]
         MUMPS_INT      keep[500]
-        @type|generic_to_mumps_type|upper@MUMPS_REAL    cntl[15]
-        @type|generic_to_mumps_type|upper@MUMPS_REAL    dkeep[130];
+        DMUMPS_REAL    cntl[15]
+        DMUMPS_REAL    dkeep[130];
         MUMPS_INT8     keep8[150];
         MUMPS_INT      n
 
@@ -142,19 +142,19 @@ cdef extern from "@type|generic_to_mumps_type@mumps_c.h":
         MUMPS_INT      nz
         MUMPS_INT      *irn
         MUMPS_INT      *jcn
-        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *a
+        DMUMPS_COMPLEX *a
 
         # Distributed entry
         MUMPS_INT      nz_loc
         MUMPS_INT      *irn_loc
         MUMPS_INT      *jcn_loc
-        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *a_loc
+        DMUMPS_COMPLEX *a_loc
 
         # Element entry
         MUMPS_INT      nelt
         MUMPS_INT      *eltptr
         MUMPS_INT      *eltvar
-        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *a_elt
+        DMUMPS_COMPLEX *a_elt
 
         # Ordering, if given by user
         MUMPS_INT      *perm_in
@@ -164,17 +164,17 @@ cdef extern from "@type|generic_to_mumps_type@mumps_c.h":
         MUMPS_INT      *uns_perm    # column permutation
 
         # Scaling (input only in this version)
-        @type|generic_to_mumps_type|upper@MUMPS_REAL    *colsca
-        @type|generic_to_mumps_type|upper@MUMPS_REAL    *rowsca
+        DMUMPS_REAL    *colsca
+        DMUMPS_REAL    *rowsca
         MUMPS_INT colsca_from_mumps;
         MUMPS_INT rowsca_from_mumps;
 
 
         # RHS, solution, ouptput data and statistics
-        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *rhs
-        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *redrhs
-        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *rhs_sparse
-        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *sol_loc
+        DMUMPS_COMPLEX *rhs
+        DMUMPS_COMPLEX *redrhs
+        DMUMPS_COMPLEX *rhs_sparse
+        DMUMPS_COMPLEX *sol_loc
         MUMPS_INT      *irhs_sparse
         MUMPS_INT      *irhs_ptr
         MUMPS_INT      *isol_loc
@@ -183,8 +183,8 @@ cdef extern from "@type|generic_to_mumps_type@mumps_c.h":
         MUMPS_INT      mblock, nblock, nprow, npcol
         MUMPS_INT      info[40]
         MUMPS_INT      infog[40]
-        @type|generic_to_mumps_type|upper@MUMPS_REAL    rinfo[40]
-        @type|generic_to_mumps_type|upper@MUMPS_REAL    rinfog[40]
+        DMUMPS_REAL    rinfo[40]
+        DMUMPS_REAL    rinfog[40]
 
         # Null space
         MUMPS_INT      deficiency
@@ -194,11 +194,11 @@ cdef extern from "@type|generic_to_mumps_type@mumps_c.h":
         # Schur
         MUMPS_INT      size_schur
         MUMPS_INT      *listvar_schur
-        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *schur
+        DMUMPS_COMPLEX *schur
 
         # Internal parameters
         MUMPS_INT      instance_number
-        @type|generic_to_mumps_type|upper@MUMPS_COMPLEX *wk_user
+        DMUMPS_COMPLEX *wk_user
 
         char *version_number
         # For out-of-core
@@ -208,7 +208,7 @@ cdef extern from "@type|generic_to_mumps_type@mumps_c.h":
         char *write_problem
         MUMPS_INT      lwk_user
 
-    cdef void @type|generic_to_mumps_type@mumps_c(@type|generic_to_mumps_type|upper@MUMPS_STRUC_C *)
+    cdef void dmumps_c(DMUMPS_STRUC_C *)
 
 # MUMPS possible ordering methods
 orderings = { 'amd' : 0, 'amf' : 2, 'scotch' : 3, 'pord' : 4, 'metis' : 5,
@@ -271,7 +271,7 @@ cdef class mumps_int_array:
     def __setitem__(self, key, value):
         self.array[key - 1] = value
 
-cdef class @type|generic_to_mumps_type@mumps_real_array:
+cdef class dmumps_real_array:
     """
     Internal classes to use x[i] = value and x[i] setters and getters
 
@@ -281,7 +281,7 @@ cdef class @type|generic_to_mumps_type@mumps_real_array:
     def __cinit__(self):
         pass
 
-    cdef get_array(self, @type|generic_to_mumps_type|upper@MUMPS_REAL * array, int ub = 40):
+    cdef get_array(self, DMUMPS_REAL * array, int ub = 40):
         """
         Args:
             ub: upper bound.
@@ -300,17 +300,7 @@ cdef class @type|generic_to_mumps_type@mumps_real_array:
     def __setitem__(self, key, value):
         self.array[key - 1] = value
 
-{% if type == 'FLOAT32' %}
 
-{% elif type == 'FLOAT64' %}
-
-{% elif type == 'COMPLEX64' %}
-
-{% elif type == 'COMPLEX128' %}
-
-{% else %}
-YOU HAVE TO CAST YOUR NEW MUMPS TYPE HERE
-{% endif %}
 
 cdef c_to_fortran_index_array(MUMPS_INT * a, MUMPS_INT a_size):
     cdef:
@@ -320,7 +310,7 @@ cdef c_to_fortran_index_array(MUMPS_INT * a, MUMPS_INT a_size):
         a[i] += 1
 
 # MUMPS CONTEXT
-cdef class BaseMUMPSSolver_@index@_@type@:
+cdef class BaseMUMPSSolver_INT32_FLOAT64:
     """
     Base MUMPS Context.
 
@@ -390,22 +380,22 @@ cdef class BaseMUMPSSolver_@index@_@type@:
         self.infog.get_array(self.params.infog)
 
         # real/complex control parameters
-        self.cntl = @type|generic_to_mumps_type@mumps_real_array()
+        self.cntl = dmumps_real_array()
         self.cntl.get_array(self.params.cntl)
 
         # real/complex information parameters
-        self.rinfo = @type|generic_to_mumps_type@mumps_real_array()
+        self.rinfo = dmumps_real_array()
         self.rinfo.get_array(self.params.rinfo)
 
         # real/complex information parameters
-        self.rinfog = @type|generic_to_mumps_type@mumps_real_array()
+        self.rinfog = dmumps_real_array()
         self.rinfog.get_array(self.params.rinfog)
 
 
     cdef get_data_pointers(self,
                            MUMPS_INT * a_row,
                            MUMPS_INT * a_col,
-                           @type|generic_to_mumps_type|upper@MUMPS_COMPLEX * a_val):
+                           DMUMPS_COMPLEX * a_val):
         """
         Get elements of A and their positions and transfer them to MUMPS internal structure.
         
@@ -419,7 +409,7 @@ cdef class BaseMUMPSSolver_@index@_@type@:
 
         self.a_row = <MUMPS_INT *> a_row
         self.a_col = <MUMPS_INT *> a_col
-        self.a_val = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> a_val
+        self.a_val = <DMUMPS_COMPLEX *> a_val
 
         # transform c index arrays to fortran arrays
         c_to_fortran_index_array(self.a_row, self.nnz)
@@ -438,7 +428,7 @@ cdef class BaseMUMPSSolver_@index@_@type@:
 
         self.params.irn = <MUMPS_INT *> self.a_row
         self.params.jcn = <MUMPS_INT *> self.a_col
-        self.params.a = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> self.a_val
+        self.params.a = <DMUMPS_COMPLEX *> self.a_val
 
 
     def __dealloc__(self):
@@ -630,35 +620,35 @@ cdef class BaseMUMPSSolver_@index@_@type@:
 
     property a:
         def __get__(self): return <long> self.params.a
-        def __set__(self, long value): self.params.a = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.a = <DMUMPS_COMPLEX*> value
 
     property a_loc:
         def __get__(self): return <long> self.params.a_loc
-        def __set__(self, long value): self.params.a_loc = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.a_loc = <DMUMPS_COMPLEX*> value
 
     property a_elt:
         def __get__(self): return <long> self.params.a_elt
-        def __set__(self, long value): self.params.a_elt = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.a_elt = <DMUMPS_COMPLEX*> value
 
     property colsca:
         def __get__(self): return <long> self.params.colsca
-        def __set__(self, long value): self.params.colsca = <@type|generic_to_mumps_type|upper@MUMPS_REAL*> value
+        def __set__(self, long value): self.params.colsca = <DMUMPS_REAL*> value
     property rowsca:
         def __get__(self): return <long> self.params.rowsca
-        def __set__(self, long value): self.params.rowsca = <@type|generic_to_mumps_type|upper@MUMPS_REAL*> value
+        def __set__(self, long value): self.params.rowsca = <DMUMPS_REAL*> value
 
     property rhs:
         def __get__(self): return <long> self.params.rhs
-        def __set__(self, long value): self.params.rhs = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.rhs = <DMUMPS_COMPLEX*> value
     property redrhs:
         def __get__(self): return <long> self.params.redrhs
-        def __set__(self, long value): self.params.redrhs = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.redrhs = <DMUMPS_COMPLEX*> value
     property rhs_sparse:
         def __get__(self): return <long> self.params.rhs_sparse
-        def __set__(self, long value): self.params.rhs_sparse = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.rhs_sparse = <DMUMPS_COMPLEX*> value
     property sol_loc:
         def __get__(self): return <long> self.params.sol_loc
-        def __set__(self, long value): self.params.sol_loc = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.sol_loc = <DMUMPS_COMPLEX*> value
 
     property rinfo:
         def __get__(self):
@@ -670,18 +660,18 @@ cdef class BaseMUMPSSolver_@index@_@type@:
 
     property schur:
         def __get__(self): return <long> self.params.schur
-        def __set__(self, long value): self.params.schur = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.schur = <DMUMPS_COMPLEX*> value
 
     property wk_user:
         def __get__(self): return <long> self.params.wk_user
-        def __set__(self, long value): self.params.wk_user = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX*> value
+        def __set__(self, long value): self.params.wk_user = <DMUMPS_COMPLEX*> value
 
     # MUMPS CALL
     cdef mumps_call(self):
         """
         Call to Xmumps_c(XMUMPS_STRUC_C).
         """
-        @type|generic_to_mumps_type@mumps_c(&self.params)
+        dmumps_c(&self.params)
 
 
     def set_silent(self):
@@ -777,7 +767,7 @@ cdef class BaseMUMPSSolver_@index@_@type@:
         self.factorized = True
         # self.factorize_stats = FactorizationStatistics(self.params, t2 - t1)
 
-    cdef solve_dense(self, @type|generic_to_mumps_type|upper@MUMPS_COMPLEX * rhs, MUMPS_INT rhs_length, MUMPS_INT nrhs):
+    cdef solve_dense(self, DMUMPS_COMPLEX * rhs, MUMPS_INT rhs_length, MUMPS_INT nrhs):
         """
         Solve a linear system after the LU (or LDL^T) factorization has previously been performed by `factorize`
 
@@ -791,13 +781,13 @@ cdef class BaseMUMPSSolver_@index@_@type@:
         """
         self.params.nrhs = <MUMPS_INT> nrhs
         self.params.lrhs = <MUMPS_INT> rhs_length
-        self.params.rhs = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *>rhs
+        self.params.rhs = <DMUMPS_COMPLEX *>rhs
         self.params.job = 3  # solve
         self.mumps_call()
 
     cdef solve_sparse(self, MUMPS_INT * rhs_col_ptr, MUMPS_INT * rhs_row_ind,
-                      @type|generic_to_mumps_type|upper@MUMPS_COMPLEX * rhs_val, MUMPS_INT rhs_nnz, MUMPS_INT nrhs, 
-                      @type|generic_to_mumps_type|upper@MUMPS_COMPLEX * x, MUMPS_INT x_length):
+                      DMUMPS_COMPLEX * rhs_val, MUMPS_INT rhs_nnz, MUMPS_INT nrhs, 
+                      DMUMPS_COMPLEX * x, MUMPS_INT x_length):
         """
         Solve a linear system after the LU (or LDL^t) factorization has previously been performed by `factorize`
 
@@ -817,13 +807,13 @@ cdef class BaseMUMPSSolver_@index@_@type@:
         self.params.nz_rhs = rhs_nnz
         self.params.nrhs = nrhs # nrhs -1 ?
 
-        self.params.rhs_sparse = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> rhs_val
+        self.params.rhs_sparse = <DMUMPS_COMPLEX *> rhs_val
         self.params.irhs_sparse = <MUMPS_INT *> rhs_row_ind
         self.params.irhs_ptr = <MUMPS_INT *> rhs_col_ptr
 
         # MUMPS places the solution(s) of the linear system in its dense rhs...
         self.params.lrhs = <MUMPS_INT> x_length
-        self.params.rhs = <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> x
+        self.params.rhs = <DMUMPS_COMPLEX *> x
 
         self.params.job = 3        # solve
         self.icntl[20] = 1  # tell solver rhs is sparse
@@ -873,7 +863,7 @@ cdef class BaseMUMPSSolver_@index@_@type@:
             else:
                 nrhs = <MUMPS_INT> rhs_shape[1]
 
-            self.solve_dense(<@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(x), rhs_shape[0], nrhs)
+            self.solve_dense(<DMUMPS_COMPLEX *> cnp.PyArray_DATA(x), rhs_shape[0], nrhs)
 
         elif all(arg in kwargs for arg in ['rhs_col_ptr', 'rhs_row_ind', 'rhs_val']) :
 
@@ -889,11 +879,11 @@ cdef class BaseMUMPSSolver_@index@_@type@:
             x_length = self.nrow
             rhs_nnz = rhs_val.size
 
-            x = np.zeros([self.nrow, nrhs], dtype=np.@type|lower@)
+            x = np.zeros([self.nrow, nrhs], dtype=np.float64)
 
             self.solve_sparse(<MUMPS_INT *>cnp.PyArray_DATA(rhs_col_ptr), <MUMPS_INT *>cnp.PyArray_DATA(rhs_row_ind),
-                              <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(rhs_val),
-                              rhs_nnz, nrhs, <@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(x), x_length)
+                              <DMUMPS_COMPLEX *> cnp.PyArray_DATA(rhs_val),
+                              rhs_nnz, nrhs, <DMUMPS_COMPLEX *> cnp.PyArray_DATA(x), x_length)
         else:
             raise TypeError('rhs not given in the right format (dense: rhs=..., sparse: rhs_col_ptr=..., rhs_row_ind=..., rhs_val=...)')
 
@@ -948,7 +938,7 @@ cdef class BaseMUMPSSolver_@index@_@type@:
         else:
             self.cntl[2] = tol
 
-        self.solve_dense(<@type|generic_to_mumps_type|upper@MUMPS_COMPLEX *> cnp.PyArray_DATA(x), rhs_shape[0], nrhs)
+        self.solve_dense(<DMUMPS_COMPLEX *> cnp.PyArray_DATA(x), rhs_shape[0], nrhs)
 
         # reset to default values
         self.icntl[10] = 0

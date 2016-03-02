@@ -5,15 +5,15 @@ site.cfg
 __pycache__/
 *.py[cod]
 
+config
+generate_code.py
+release.sh
+
 # C extensions
 *.so
-
-# Generated files
-*.pyx
-*.pxd
-setup.py
-mumps/mumps_context.py
-*.c
+*.cpx
+*.cpd
+*.cpy
 
 # Distribution / packaging
 .Python
@@ -38,6 +38,9 @@ var/
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+
+# OS X specific
+.DS_Store
 
 # Installer logs
 pip-log.txt
