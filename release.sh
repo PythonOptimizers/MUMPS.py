@@ -26,7 +26,7 @@ git rm --cached -r config
 
 cp config/site.template.cfg .
 cp config/.gitignore .
-cp config/.travis.yml
+cp config/.travis.yml .
 
 git add tests/\*.py
 git add setup.py
