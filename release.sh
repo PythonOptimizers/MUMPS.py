@@ -26,8 +26,8 @@ git rm --cached -r config
 
 cp config/site.template.cfg .
 cp config/.gitignore .
+cp config/.travis.yml
 
-git add qr_mumps/solver.py
 git add tests/\*.py
 git add setup.py
 git add --all
