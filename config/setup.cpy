@@ -7,7 +7,6 @@
 from distutils.core import setup
 from setuptools import find_packages
 from distutils.extension import Extension
-from Cython.Distutils import build_ext
 
 import numpy as np
 
@@ -182,6 +181,34 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
+setup_args = {
+      'name' : 'MUMPS.py',
+      'version' : version['version'],
+      'description' : 'A python interface to MUMPS.',
+      'long_description' : long_description,
+      #Author details
+{% raw %}
+      'author' : 'Sylvain Arreckx, Dominique Orban and Nikolaj van Omme',
+{% endraw %}
+      'maintainer' : "Sylvain Arreckx",
+{% raw %}
+      'maintainer_email' : "sylvain.arreckx@gmail.com",
+{% endraw %}
+      'summary' : "A Cython/Python interface to the MUMPS solver.",
+      'url' : "https://github.com/PythonOptimizers/MUMPS.py.git",
+      'download_url' : "https://github.com/PythonOptimizers/MUMPS.py.git",
+      'license' : 'LGPL',
+      'classifiers' : filter(None, CLASSIFIERS.split('\n')),
+      'install_requires' : ['numpy'],
+      'ext_modules' : mumps_ext,
+      'package_dir' : {"mumps": "mumps"},
+      'packages' : packages_list,
+      'zip_safe' : False}
+
+if use_cython:
+    setup_args['cmdclass'] = {'build_ext': build_ext}
+
+setup(**setup_args)
 setup(name=  'mumps.py',
       version=version['version'],
       description='A python interface to MUMPS',
