@@ -1,13 +1,10 @@
 # configuration file
 site.cfg
+.DS_STORE
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-
-config
-generate_code.py
-release.sh
 
 # C extensions
 *.so
@@ -16,6 +13,9 @@ release.sh
 *.cpy
 
 # Distribution / packaging
+config/*
+release.sh
+generate_code.py
 .Python
 env/
 build/

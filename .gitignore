@@ -1,5 +1,6 @@
 # configuration file
 site.cfg
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -16,6 +17,7 @@ mumps/mumps_context.py
 *.c
 
 # Distribution / packaging
+release.sh
 .Python
 env/
 build/
