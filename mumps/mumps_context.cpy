@@ -47,16 +47,16 @@ def MUMPSContext(arg1, verbose=False):
     MUMPS ("MUltifrontal Massively Parallel Solver") is a package for solving systems
     of linear equations of the form Ax = b, where A is a square **sparse** matrix that can be
     either unsymmetric, symmetric positive definite, or general symmetric, on distributed
-    memory computers. 
-    
+    memory computers.
+
     MUMPS performs a Gaussian factorization
       A = LU
     where L is a lower triangular matrix and U an upper triangular matrix.
 
     If the matrix is symmetric then MUMPS performs the factorization
-      A = LDL^T 
+      A = LDL^T
     where D is block diagonal matrix.
-    
+
     Args:
         n: size of matrix A
         a_row: row indices of non zero elements of A
@@ -153,4 +153,5 @@ def MUMPSContext(arg1, verbose=False):
 {% endfor %}
         else:
             raise TypeError(type_error_msg)
-
+    else:
+        raise TypeError(type_error_msg)
