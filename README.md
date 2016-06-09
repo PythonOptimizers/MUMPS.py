@@ -7,7 +7,9 @@ It supports all four types (single real, double real, single complex and double 
 
 
 ## Installation
-    
+
+### branch `master`
+
 1. You need to install MUMPS. Follow instructions on [their website](http://mumps.enseeiht.fr/).
        If you are under OS X, a [Homebrew](http://brew.sh) formula is available. Follow the instructions to install Homebrew.
        Then, MUMPS and its dependencies can be installed automatically in `/usr/local` by typing
@@ -18,15 +20,60 @@ It supports all four types (single real, double real, single complex and double 
 
     	brew install mumps
 
-2. Clone this repo and modify the `site.cfg` to match your configuration
-    
-3. Install `MUMPS.py`
+2. Clone repository
 
-    	python generate_code.py -a
+        git clone git@github.com:optimizers/MUMPS.py.git
+
+3. Install Python dependencies
+
+        pip install numpy
+
+4. Copy `site.template.cfg` to `site.cfg` and adjust it to your needs
+    
+5. Install `MUMPS.py`
+
     	python setup.py build
     	python setup.py install
 
-## Running examples
+
+### branch `develop`
+
+1. You need to install MUMPS. Follow instructions on [their website](http://mumps.enseeiht.fr/).
+       If you are under OS X, a [Homebrew](http://brew.sh) formula is available. Follow the instructions to install Homebrew.
+       Then, MUMPS and its dependencies can be installed automatically in `/usr/local` by typing
+
+    	brew install gcc  # contains gfortran
+
+    	brew tap homebrew/science
+
+    	brew install mumps
+
+2. Clone repository
+
+        git clone git@github.com:optimizers/MUMPS.py.git
+
+3. Install Python dependencies
+
+        pip install numpy
+        pip install cygenja
+
+4. Copy `site.template.cfg` to `site.cfg` and adjust it to your needs
+
+5. Generate Cython files
+
+        python generate_code.py
+
+6. Install `MUMPS.py`
+
+    	python setup.py build
+    	python setup.py install
+
+
+
+## Running tests
+
+    pip install pytest
+    py.test tests
 
 ## TODO:
 
