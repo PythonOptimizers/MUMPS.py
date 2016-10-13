@@ -10,11 +10,9 @@ except ImportError:
     pass
 
 from mumps.mumps_context import MUMPSContext
-import numpy as np
-import sys
 from unittest import TestCase
+import numpy as np
 import pytest
-
 
 class CySparseMUMPSContextTestCase_INT32_COMPLEX64(TestCase):
     def setUp(self):
@@ -35,13 +33,13 @@ class CySparseMUMPSContextTestCase_INT32_COMPLEX64(TestCase):
     def test_analyze(self):
         context = MUMPSContext(self.A, verbose=False)
         context.analyze()
-        assert context.analyzed == True
+        assert context.analyzed is True
 
     def test_factorize(self):
         context = MUMPSContext(self.A, verbose=False)
         context.factorize()
-        assert context.analyzed == True
-        assert context.factorized == True
+        assert context.analyzed is True
+        assert context.factorized is True
 
     def test_dense_solve_single_rhs(self):
         context = MUMPSContext(self.A, verbose=False)
@@ -68,9 +66,12 @@ class CySparseMUMPSContextTestCase_INT32_COMPLEX64(TestCase):
         context = MUMPSContext(self.A, verbose=False)
         context.factorize()
         acol_csc = np.array([1, 5, 9, 13, 17], dtype=np.int32)-1
-        arow_csc = np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4], dtype=np.int32)-1
-        aval_csc = np.array([1, 5, 9, 13, 2, 0, 10, 14, 3, 7, 0, 15, 4, 8, 12, 0], dtype=np.complex64)
-        x = context.solve(rhs_col_ptr=acol_csc, rhs_row_ind=arow_csc, rhs_val=aval_csc)
+        arow_csc = np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4],
+                            dtype=np.int32)-1
+        aval_csc = np.array([1, 5, 9, 13, 2, 0, 10, 14, 3, 7, 0, 15, 4, 8, 12, 0],
+                            dtype=np.complex64)
+        x = context.solve(rhs_col_ptr=acol_csc, rhs_row_ind=arow_csc,
+                          rhs_val=aval_csc)
         assert np.allclose(x, np.eye(4), 1e-6, 1e-6)
 
     def test_iterative_refinement_single_rhs(self):
@@ -102,13 +103,13 @@ class CySparseMUMPSContextTestCase_INT32_COMPLEX128(TestCase):
     def test_analyze(self):
         context = MUMPSContext(self.A, verbose=False)
         context.analyze()
-        assert context.analyzed == True
+        assert context.analyzed is True
 
     def test_factorize(self):
         context = MUMPSContext(self.A, verbose=False)
         context.factorize()
-        assert context.analyzed == True
-        assert context.factorized == True
+        assert context.analyzed is True
+        assert context.factorized is True
 
     def test_dense_solve_single_rhs(self):
         context = MUMPSContext(self.A, verbose=False)
@@ -135,9 +136,12 @@ class CySparseMUMPSContextTestCase_INT32_COMPLEX128(TestCase):
         context = MUMPSContext(self.A, verbose=False)
         context.factorize()
         acol_csc = np.array([1, 5, 9, 13, 17], dtype=np.int32)-1
-        arow_csc = np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4], dtype=np.int32)-1
-        aval_csc = np.array([1, 5, 9, 13, 2, 0, 10, 14, 3, 7, 0, 15, 4, 8, 12, 0], dtype=np.complex128)
-        x = context.solve(rhs_col_ptr=acol_csc, rhs_row_ind=arow_csc, rhs_val=aval_csc)
+        arow_csc = np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4],
+                            dtype=np.int32)-1
+        aval_csc = np.array([1, 5, 9, 13, 2, 0, 10, 14, 3, 7, 0, 15, 4, 8, 12, 0],
+                            dtype=np.complex128)
+        x = context.solve(rhs_col_ptr=acol_csc, rhs_row_ind=arow_csc,
+                          rhs_val=aval_csc)
         assert np.allclose(x, np.eye(4), 1e-6, 1e-6)
 
     def test_iterative_refinement_single_rhs(self):
@@ -169,13 +173,13 @@ class CySparseMUMPSContextTestCase_INT32_FLOAT32(TestCase):
     def test_analyze(self):
         context = MUMPSContext(self.A, verbose=False)
         context.analyze()
-        assert context.analyzed == True
+        assert context.analyzed is True
 
     def test_factorize(self):
         context = MUMPSContext(self.A, verbose=False)
         context.factorize()
-        assert context.analyzed == True
-        assert context.factorized == True
+        assert context.analyzed is True
+        assert context.factorized is True
 
     def test_dense_solve_single_rhs(self):
         context = MUMPSContext(self.A, verbose=False)
@@ -202,9 +206,12 @@ class CySparseMUMPSContextTestCase_INT32_FLOAT32(TestCase):
         context = MUMPSContext(self.A, verbose=False)
         context.factorize()
         acol_csc = np.array([1, 5, 9, 13, 17], dtype=np.int32)-1
-        arow_csc = np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4], dtype=np.int32)-1
-        aval_csc = np.array([1, 5, 9, 13, 2, 0, 10, 14, 3, 7, 0, 15, 4, 8, 12, 0], dtype=np.float32)
-        x = context.solve(rhs_col_ptr=acol_csc, rhs_row_ind=arow_csc, rhs_val=aval_csc)
+        arow_csc = np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4],
+                            dtype=np.int32)-1
+        aval_csc = np.array([1, 5, 9, 13, 2, 0, 10, 14, 3, 7, 0, 15, 4, 8, 12, 0],
+                            dtype=np.float32)
+        x = context.solve(rhs_col_ptr=acol_csc, rhs_row_ind=arow_csc,
+                          rhs_val=aval_csc)
         assert np.allclose(x, np.eye(4), 1e-6, 1e-6)
 
     def test_iterative_refinement_single_rhs(self):
@@ -236,13 +243,13 @@ class CySparseMUMPSContextTestCase_INT32_FLOAT64(TestCase):
     def test_analyze(self):
         context = MUMPSContext(self.A, verbose=False)
         context.analyze()
-        assert context.analyzed == True
+        assert context.analyzed is True
 
     def test_factorize(self):
         context = MUMPSContext(self.A, verbose=False)
         context.factorize()
-        assert context.analyzed == True
-        assert context.factorized == True
+        assert context.analyzed is True
+        assert context.factorized is True
 
     def test_dense_solve_single_rhs(self):
         context = MUMPSContext(self.A, verbose=False)
@@ -269,9 +276,12 @@ class CySparseMUMPSContextTestCase_INT32_FLOAT64(TestCase):
         context = MUMPSContext(self.A, verbose=False)
         context.factorize()
         acol_csc = np.array([1, 5, 9, 13, 17], dtype=np.int32)-1
-        arow_csc = np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4], dtype=np.int32)-1
-        aval_csc = np.array([1, 5, 9, 13, 2, 0, 10, 14, 3, 7, 0, 15, 4, 8, 12, 0], dtype=np.float64)
-        x = context.solve(rhs_col_ptr=acol_csc, rhs_row_ind=arow_csc, rhs_val=aval_csc)
+        arow_csc = np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4],
+                            dtype=np.int32)-1
+        aval_csc = np.array([1, 5, 9, 13, 2, 0, 10, 14, 3, 7, 0, 15, 4, 8, 12, 0],
+                            dtype=np.float64)
+        x = context.solve(rhs_col_ptr=acol_csc, rhs_row_ind=arow_csc,
+                          rhs_val=aval_csc)
         assert np.allclose(x, np.eye(4), 1e-6, 1e-6)
 
     def test_iterative_refinement_single_rhs(self):
@@ -284,6 +294,3 @@ class CySparseMUMPSContextTestCase_INT32_FLOAT64(TestCase):
         assert np.allclose(x, e)
 
 
-
-if __name__ == "__main__":
-      run_module_suite()
