@@ -5,6 +5,10 @@ Python inferface to MUMPS ([MUltifrontal Massively Parallel sparse direct Solver
 
 It supports all four types (single real, double real, single complex and double complex).
 
+## Caveats
+
+For now, it only works with the **SEQUENTIAL** version of MUMPS.
+
 
 ## Installation
 
@@ -18,7 +22,7 @@ It supports all four types (single real, double real, single complex and double 
 
     	brew tap homebrew/science
 
-    	brew install mumps
+    	brew install mumps --without-mpi
 
 2. Clone repository
 
