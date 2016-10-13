@@ -294,6 +294,3 @@ class CySparseMUMPSContextTestCase_INT32_FLOAT64(TestCase):
         assert np.allclose(x, e)
 
 
-
-if __name__ == "__main__":
-      run_module_suite()

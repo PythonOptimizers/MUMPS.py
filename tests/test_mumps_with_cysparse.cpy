@@ -88,6 +88,3 @@ class CySparseMUMPSContextTestCase_@index_type@_@element_type@(TestCase):
 
   {% endfor %}
 {% endfor %}
-
-if __name__ == "__main__":
-      run_module_suite()
