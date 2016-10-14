@@ -7,7 +7,7 @@ It supports all four types (single real, double real, single complex and double 
 
 ## Caveats
 
-For now, it only works with the **SEQUENTIAL** version of MUMPS.
+For now, `MUMPS.py` only works with the **SEQUENTIAL** version of MUMPS.
 
 
 ## Installation
