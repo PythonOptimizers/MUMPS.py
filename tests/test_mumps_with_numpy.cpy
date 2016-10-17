@@ -5,9 +5,9 @@ and on symmetric and general matrices.
 """
 
 from mumps.mumps_context import MUMPSContext
-import numpy as np
-import sys
 from unittest import TestCase
+import numpy as np
+import pytest
 
 {% for index_type in index_list %}
     {% for element_type in type_list %}
@@ -27,13 +27,13 @@ class NumpyMUMPSContextTestCase_@index_type@_@element_type@(TestCase):
     def test_analyze(self):
         context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
         context.analyze()
-        assert context.analyzed == True
+        assert context.analyzed is True
 
     def test_factorize(self):
         context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
         context.factorize()
-        assert context.analyzed == True
-        assert context.factorized == True
+        assert context.analyzed is True
+        assert context.factorized is True
 
     def test_dense_solve_single_rhs(self):
         context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
@@ -57,11 +57,15 @@ class NumpyMUMPSContextTestCase_@index_type@_@element_type@(TestCase):
         context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
         context.factorize()
         acol_csc = np.array([1, 5, 9, 13, 17],
-        dtype=np.@index_type|lower@)-1
-        arow_csc = np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4], dtype=np.@index_type|lower@)-1
-        aval_csc = np.array([1, 5, 9, 13, 2, 0, 10, 14, 3, 7, 0, 15, 4, 8, 12, 0], dtype=np.@element_type|lower@)
-        x = context.solve(rhs_col_ptr=acol_csc, rhs_row_ind=arow_csc, rhs_val=aval_csc)
-        assert np.allclose(x, np.eye(4, dtype=np.@element_type|lower@), 1e-4, 1e-4)
+        dtype = np.@index_type|lower@)-1
+        arow_csc = np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4],
+                            dtype=np.@index_type|lower@) - 1
+        aval_csc = np.array([1, 5, 9, 13, 2, 0, 10, 14, 3, 7, 0, 15, 4, 8, 12, 0],
+                            dtype=np.@element_type|lower@)
+        x = context.solve(rhs_col_ptr=acol_csc, rhs_row_ind=arow_csc,
+                          rhs_val=aval_csc)
+        assert np.allclose(x, np.eye(4, dtype=np.@element_type|lower@),
+                           1e-4, 1e-4)
 
     def test_iterative_refinement_single_rhs(self):
         context = MUMPSContext((self.n, self.arow, self.acol, self.aval, self.sym), verbose=False)
@@ -73,8 +77,5 @@ class NumpyMUMPSContextTestCase_@index_type@_@element_type@(TestCase):
         assert np.allclose(x, e)
 
 
-  {% endfor %}
+    {% endfor %}
 {% endfor %}
-
-if __name__ == "__main__":
-      run_module_suite()
