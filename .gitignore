@@ -1,6 +1,6 @@
 # configuration file
 site.cfg
-.DS_Store
+.DS_STORE
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -8,16 +8,14 @@ __pycache__/
 
 # C extensions
 *.so
-
-# Generated files
-*.pyx
-*.pxd
-setup.py
-mumps/mumps_context.py
-*.c
+*.cpx
+*.cpd
+*.cpy
 
 # Distribution / packaging
+config/*
 release.sh
+generate_code.py
 .Python
 env/
 build/
@@ -40,6 +38,9 @@ var/
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+
+# OS X specific
+.DS_Store
 
 # Installer logs
 pip-log.txt

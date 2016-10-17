@@ -1,8 +1,0 @@
-from cysparse.sparse.ll_mat_matrices.ll_mat_@index@_t_@type@_t cimport LLSparseMatrix_@index@_t_@type@_t
-
-from mumps.src.mumps_@index@_@type@ cimport BaseMUMPSSolver_@index@_@type@
-
-cimport numpy as cnp
-cdef class CySparseMUMPSSolver_@index@_@type@(BaseMUMPSSolver_@index@_@type@):
-    cpdef get_matrix_data(self, LLSparseMatrix_@index@_t_@type@_t A)
- 
