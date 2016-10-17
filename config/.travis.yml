@@ -15,10 +15,12 @@ before_install:
       fi
 
 install: 
+    - pip install --upgrade pip
     - pip install virtualenv
     - virtualenv ~/.venv
     - source ~/.venv/bin/activate
     - cp site.template.cfg site.cfg
+    - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sed -i 's/mpiseq/mpiseq_seq/g' setup.py; fi
     - "pip install -q numpy && python setup.py install"
     - pip install pytest
 script: py.test tests
